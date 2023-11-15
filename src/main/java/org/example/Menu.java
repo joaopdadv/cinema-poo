@@ -9,7 +9,7 @@ import java.util.Scanner;
 public class Menu {
 
     private static Scanner scanner;
-    private Cinema cinema;
+//    private Cinema cinema;
 
     public Menu(){}
     public static void main(String[] args) {
@@ -35,6 +35,10 @@ public class Menu {
                 case 1:
                     mostrarMenuCinema();
                     break;
+                case 2:
+//                    if(cinemaCadastrado()) {
+//                        mostraMenuSalas();
+//                    }
                 case 0:
                     System.out.println("Saindo...");
                     System.exit(0);
@@ -42,6 +46,22 @@ public class Menu {
             System.out.println("---------------------------------------------");
         }while (opcao != 0);
         scanner.close();
+    }
+
+    public boolean cinemaCadastrado(){
+        try{
+            File file = new File("cinemas.dat");
+
+            if (file.exists()) {
+                return true;
+            } else {
+                System.out.println("É preciso cadastrar um Cinema!");
+                return false;
+            }
+        }catch(Exception e){
+            e.printStackTrace();
+            return false;
+        }
     }
 
     public void mostrarMenuCinema(){
@@ -106,7 +126,7 @@ public class Menu {
                 System.out.print("Complemento: ");
                 String complemento = scanner.nextLine();
 
-                cinema = new Cinema(nome, new Endereco(rua, numero, complemento));
+                Cinema cinema = new Cinema(nome, new Endereco(rua, numero, complemento));
 
                 salvarEmArquivo(cinema, "cinemas.dat");
             }

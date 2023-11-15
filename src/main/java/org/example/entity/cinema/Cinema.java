@@ -39,6 +39,7 @@ public class Cinema implements Serializable {
         return "Cinema{" +
                 "nome='" + nome + '\'' +
                 ", endereco=" + endereco +
+                ", salas=" + salas +
                 '}';
     }
 }
