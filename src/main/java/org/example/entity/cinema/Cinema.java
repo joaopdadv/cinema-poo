@@ -34,6 +34,18 @@ public class Cinema implements Serializable {
         this.endereco = endereco;
     }
 
+    public List<Sala> getSalas() {
+        return salas;
+    }
+
+    public void setSalas(List<Sala> salas) {
+        this.salas = salas;
+    }
+
+    public void addSala(Sala sala){
+        salas.add(sala);
+    }
+
     @Override
     public String toString() {
         return "Cinema{" +

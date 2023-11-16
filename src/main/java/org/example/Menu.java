@@ -2,18 +2,26 @@ package org.example;
 
 import org.example.entity.cinema.Cinema;
 import org.example.entity.endereco.Endereco;
+import org.example.entity.sala.Sala;
+import org.example.exceptions.CinemaNotFoundException;
+import org.example.exceptions.ListNotFoundException;
+import org.example.services.CinemaService;
 
 import java.io.*;
+import java.util.List;
 import java.util.Scanner;
+import java.util.stream.Collectors;
 
 public class Menu {
 
     private static Scanner scanner;
-//    private Cinema cinema;
-
-    public Menu(){}
+    private final CinemaService cinemaService;
+    public Menu(CinemaService cinemaService){
+        this.cinemaService = cinemaService;
+    }
     public static void main(String[] args) {
-        Menu menu = new Menu();
+        CinemaService service = new CinemaService();
+        Menu menu = new Menu(service);
         menu.mostraMenu();
     }
 
@@ -26,6 +34,7 @@ public class Menu {
             System.out.println("---------------------------------------------");
             System.out.println("Escolha a opção:");
             System.out.println(" 1 - CINEMA");
+            System.out.println(" 2 - SALAS");
             System.out.println(" 0 - Sair");
 
             opcao = scanner.nextInt();
@@ -36,9 +45,10 @@ public class Menu {
                     mostrarMenuCinema();
                     break;
                 case 2:
-//                    if(cinemaCadastrado()) {
-//                        mostraMenuSalas();
-//                    }
+                    if(cinemaCadastrado()) {
+                        mostrarMenuSalas();
+                    }
+                    break;
                 case 0:
                     System.out.println("Saindo...");
                     System.exit(0);
@@ -63,6 +73,10 @@ public class Menu {
             return false;
         }
     }
+
+    // -------------------------------------------------------------------------------------------------- //
+    // --------------------------------------------- CINEMA --------------------------------------------- //
+    // -------------------------------------------------------------------------------------------------- //
 
     public void mostrarMenuCinema(){
         int opcao = 0;
@@ -110,7 +124,7 @@ public class Menu {
                 listarCinema();
             } else {
                 System.out.println("---------------------------------------------");
-                System.out.println("Criar um cinema:");
+                System.out.println("Criar um cinema");
                 System.out.println("Informe o nome do cinema:");
 
                 String nome = scanner.nextLine();
@@ -127,8 +141,7 @@ public class Menu {
                 String complemento = scanner.nextLine();
 
                 Cinema cinema = new Cinema(nome, new Endereco(rua, numero, complemento));
-
-                salvarEmArquivo(cinema, "cinemas.dat");
+                cinemaService.salvarEmArquivo(cinema, "cinemas.dat");
             }
         }catch(Exception e){
             e.printStackTrace();
@@ -139,10 +152,7 @@ public class Menu {
         try{
             File file = new File("cinemas.dat");
 
-            if (!file.exists()){
-                System.out.println("Você precisa cadastrar um cinema!");
-            }else{
-                // Delete the file
+            if (cinemaCadastrado() && confirmarAcao("excluir cinema")){
                 if (file.delete()) {
                     System.out.println("Cinema excluído com sucesso!");
                 } else {
@@ -156,19 +166,10 @@ public class Menu {
 
     public void editarCinema(){
         try{
-            File file = new File("cinemas.dat");
-
-            if (!file.exists()){
-                System.out.println("Você precisa cadastrar um cinema!");
-            }else{
-                FileInputStream fileInputStream = new FileInputStream("cinemas.dat");
-                ObjectInputStream objectInputStream = new ObjectInputStream(fileInputStream);
-
-                Object object = objectInputStream.readObject();
-                Cinema c = (Cinema) object;
+            if (cinemaCadastrado()){
+                Cinema c = cinemaService.lerArquivoCinemas();
 
                 int opcao = 0;
-
                 do{
                     System.out.println("Editar nome ou endereço?");
                     System.out.println(" 1 - Nome");
@@ -182,7 +183,7 @@ public class Menu {
                         String novoNome = scanner.nextLine();
                         c.setNome(novoNome);
 
-                        salvarEmArquivo(c, "cinemas.dat");
+                        cinemaService.salvarEmArquivo(c, "cinemas.dat");
                     }else if(opcao == 2){
                         System.out.print("Rua: ");
                         String novaRua = scanner.nextLine();
@@ -193,12 +194,9 @@ public class Menu {
 
                         c.setEndereco(new Endereco(novaRua, novoNumero, novoComplemento));
 
-                        salvarEmArquivo(c, "cinemas.dat");
+                        cinemaService.salvarEmArquivo(c, "cinemas.dat");
                     }
                 }while(opcao != 0);
-
-                objectInputStream.close();
-                fileInputStream.close();
             }
         }catch (Exception e){
             e.printStackTrace();
@@ -206,43 +204,156 @@ public class Menu {
     }
 
     public void listarCinema(){
-
         try{
-            File file = new File("cinemas.dat");
-
-            if (!file.exists()){
-                System.out.println("Você precisa cadastrar um cinema!");
-            }else{
-                FileInputStream fileInputStream = new FileInputStream("cinemas.dat");
-                ObjectInputStream objectInputStream = new ObjectInputStream(fileInputStream);
-
-                Object object = objectInputStream.readObject();
-                Cinema c = (Cinema) object;
-
+            if (cinemaCadastrado()){
+                Cinema c = cinemaService.lerArquivoCinemas();
                 System.out.println(c);
-
-                objectInputStream.close();
-                fileInputStream.close();
             }
         }catch (Exception e){
             e.printStackTrace();
         }
     }
 
-    public void salvarEmArquivo(Object o, String filePath){
-        try {
-            FileOutputStream fileOutputStream = new FileOutputStream(filePath);
-            ObjectOutputStream objectOutputStream = new ObjectOutputStream(fileOutputStream);
+    // -------------------------------------------------------------------------------------------------- //
+    // --------------------------------------------- SALAS --------------------------------------------- //
+    // -------------------------------------------------------------------------------------------------- //
 
-            objectOutputStream.writeObject(o);
+    public void mostrarMenuSalas(){
+        int opcao = 0;
 
-            objectOutputStream.close();
-            fileOutputStream.close();
-        }catch (Exception e){
+        do {
+            System.out.println("---------------------------------------------");
+            System.out.println("MENU SALAS");
+            System.out.println(" 1 - Criar");
+            System.out.println(" 2 - Excluir");
+            System.out.println(" 3 - Editar");
+            System.out.println(" 4 - Obter dados");
+            System.out.println(" 0 - Voltar");
+
+            opcao = scanner.nextInt();
+            scanner.nextLine();
+
+            switch (opcao){
+                case 1:
+                    criarSala();
+                    break;
+                case 2:
+                    excluirSala();
+                    break;
+                case 3:
+                    editarSala();
+                    break;
+                case 4:
+                    listarSalas();
+                    break;
+                case 0:
+                    System.out.println("Voltando ao menu principal...");
+                    break;
+            }
+            System.out.println("---------------------------------------------");
+        }while (opcao != 0);
+    }
+
+    public void criarSala(){
+        try{
+
+                System.out.println("---------------------------------------------");
+                System.out.println("Criar uma sala");
+                System.out.println("Informe o nome da sala:");
+
+                Boolean existe = false;
+                String nome;
+
+                do {
+                    if (existe) {
+                        System.out.println("Nome já cadastrado. Tente novamente.");
+                    }
+                    nome = scanner.nextLine();
+
+                    existe = cinemaService.verificarSala(nome);
+                }while (existe);
+
+                Sala sala = new Sala(nome);
+
+                Cinema cinema = cinemaService.lerArquivoCinemas();
+                cinema.addSala(sala);
+
+                cinemaService.salvarEmArquivo(cinema, "cinemas.dat");
+        }catch(Exception e){
             e.printStackTrace();
         }
     }
 
+    public void excluirSala(){
+        try{
+            List<Sala> salas = cinemaService.getListaSalas();
+
+            if (!salas.isEmpty()){
+                System.out.println("Qual o nome da sala para ser excluída?");
+                String nome = scanner.nextLine();
+
+                if(cinemaService.verificarSala(nome)){
+                    if(confirmarAcao("excluir sala")){
+                        salas = salas.stream()
+                                .filter(sala -> !sala.getNome().equals(nome))
+                                .collect(Collectors.toList());
+
+                        cinemaService.salvarListaSalas(salas);
+                    }
+                }else{
+                    System.out.println("Essa sala não existe!");
+                }
+            }
+
+        }catch(ListNotFoundException e){
+            e.printStackTrace();
+        }
+    }
+
+    public void editarSala(){
+        try{
+            System.out.println("Qual o nome da sala que você deseja editar?");
+            String nomeSala = scanner.nextLine();
+
+            if (cinemaService.verificarSala(nomeSala)){
+                System.out.println("Digite o novo nome da sala:");
+                String novoNome = scanner.nextLine();
+
+                cinemaService.editarSala(nomeSala, novoNome);
+            }else{
+                System.out.println("Essa sala não existe!");
+            }
+        }catch (ListNotFoundException e){
+            e.printStackTrace();
+        }
+    }
+
+    public void listarSalas(){
+        try{
+            List<Sala> salas = cinemaService.getListaSalas();
+            System.out.println(salas);
+        }catch (ListNotFoundException e){
+            e.printStackTrace();
+        }
+    }
+
+    private boolean confirmarAcao(String acao){
+        System.out.println("Você tem certeza que quer " + acao + "?");
+        System.out.println("1 - Sim");
+        System.out.println("0 - Não");
+
+        int opcao = 0;
+        opcao = scanner.nextInt();
+        scanner.nextLine();
+
+        if(opcao == 0){
+            return false;
+        } else if (opcao == 1) {
+            return true;
+        }else{
+            return false;
+        }
+    }
 }
 
 
