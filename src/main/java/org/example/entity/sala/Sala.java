@@ -28,11 +28,11 @@ public class Sala implements Serializable {
         this.nome = nome;
     }
 
-    public List<Assento> getPoltronas() {
+    public List<Assento> getAssentos() {
         return poltronas;
     }
 
-    public void setPoltronas(List<Assento> poltronas) {
+    public void setAssentos(List<Assento> poltronas) {
         this.poltronas = poltronas;
     }
 
