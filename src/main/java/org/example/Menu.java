@@ -11,6 +11,7 @@ import java.io.*;
 import java.sql.SQLOutput;
 import java.util.List;
 import java.util.Scanner;
+import java.util.Set;
 import java.util.stream.Collectors;
 
 public class Menu {
@@ -284,7 +285,7 @@ public class Menu {
 
     public void excluirSala(){
         try{
-            List<Sala> salas = cinemaService.getListaSalas();
+            Set<Sala> salas = cinemaService.getHashSetSalas();
 
             if (!salas.isEmpty()){
                 System.out.println("Qual o nome da sala para ser excluída?");
@@ -294,7 +295,7 @@ public class Menu {
                     if(confirmarAcao("excluir sala")){
                         salas = salas.stream()
                                 .filter(sala -> !sala.getNome().equals(nome))
-                                .collect(Collectors.toList());
+                                .collect(Collectors.toSet());
 
                         cinemaService.salvarListaSalas(salas);
                     }
@@ -328,8 +329,7 @@ public class Menu {
 
     public void listarSalas(){
         try{
-            List<Sala> salas = cinemaService.getListaSalas();
-            System.out.println(salas);
+            System.out.println(cinemaService.getHashSetSalas());
         }catch (SalasNotFoundException e){
             e.printStackTrace();
         }
@@ -385,21 +385,21 @@ public class Menu {
         }while (opcao != 0);
     }
 
-    public void criarAssento(Sala sala){
-        try{
+    public void criarAssento(Sala sala) {
+        try {
             System.out.println("Qual a fileira do novo assento?");
             String fileira = scanner.nextLine();
 
             System.out.println("Qual o número do novo assento?");
             String numero = scanner.nextLine();
 
-            if(!cinemaService.verificaAssento(sala,fileira,numero)){
+            if (cinemaService.verificaAssento(sala, fileira, numero)) {
+                System.out.println("Esse assento já existe!");
+            } else {
                 sala.addAssento(new Assento(fileira, numero));
                 cinemaService.salvarSala(sala);
-            }else{
-                System.out.println("Esse assento já existe!");
             }
-        }catch (Exception e){
+        } catch (Exception e) {
             e.printStackTrace();
         }
     }
@@ -425,22 +425,15 @@ public class Menu {
         }
     }
 
-    private boolean confirmarAcao(String acao){
+    private boolean confirmarAcao(String acao) {
         System.out.println("Você tem certeza que quer " + acao + "?");
         System.out.println("1 - Sim");
         System.out.println("0 - Não");
 
-        int opcao = 0;
-        opcao = scanner.nextInt();
+        int opcao = scanner.nextInt();
         scanner.nextLine();
 
-        if(opcao == 0){
-            return false;
-        } else if (opcao == 1) {
-            return true;
-        }else{
-            return false;
-        }
+        return opcao == 1;
     }
 }
 

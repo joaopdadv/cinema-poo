@@ -3,20 +3,19 @@ package org.example.entity.sala;
 import org.example.entity.poltrona.Assento;
 
 import java.io.Serializable;
-import java.util.ArrayList;
-import java.util.List;
+import java.util.*;
 
 public class Sala implements Serializable {
 
     private String nome;
-    private List<Assento> poltronas = new ArrayList<>();
+    private Set<Assento> assentos = new HashSet<>();
 
     public Sala(String nome) {
         this.nome = nome;
     }
 
     public void addAssento(Assento assento) {
-        poltronas.add(assento);
+        assentos.add(assento);
         assento.setSala(this);
     }
 
@@ -28,19 +27,30 @@ public class Sala implements Serializable {
         this.nome = nome;
     }
 
-    public List<Assento> getAssentos() {
-        return poltronas;
+    public Set<Assento> getAssentos() {
+        return assentos;
     }
 
-    public void setAssentos(List<Assento> poltronas) {
-        this.poltronas = poltronas;
+    public void setAssentos(Set<Assento> poltronas) {
+        this.assentos = poltronas;
     }
 
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (!(o instanceof Sala)) return false;
+        Sala sala = (Sala) o;
+        return Objects.equals(getNome(), sala.getNome()) && Objects.equals(assentos, sala.assentos);
+    }
+    @Override
+    public int hashCode() {
+        return Objects.hash(getNome(), assentos);
+    }
     @Override
     public String toString() {
         return "Sala{" +
                 "nome='" + nome + '\'' +
-                ", poltronas=" + poltronas +
+                ", poltronas=" + assentos +
                 '}';
     }
 }

@@ -5,13 +5,15 @@ import org.example.entity.sala.Sala;
 
 import java.io.Serializable;
 import java.util.ArrayList;
+import java.util.HashSet;
 import java.util.List;
+import java.util.Set;
 
 public class Cinema implements Serializable {
 
     private String nome;
     private Endereco endereco;
-    private List<Sala> salas = new ArrayList<>();
+    private Set<Sala> salas = new HashSet<>();
 
     public Cinema(String nome, Endereco endereco) {
         this.nome = nome;
@@ -34,11 +36,11 @@ public class Cinema implements Serializable {
         this.endereco = endereco;
     }
 
-    public List<Sala> getSalas() {
+    public Set<Sala> getSalas() {
         return salas;
     }
 
-    public void setSalas(List<Sala> salas) {
+    public void setSalas(Set<Sala> salas) {
         this.salas = salas;
     }
 
