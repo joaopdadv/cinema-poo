@@ -372,10 +372,10 @@ public class Menu {
                     excluirAssento(sala);
                     break;
                 case 3:
-//                    editarAssento();
+                    editarAssento(sala);
                     break;
                 case 4:
-//                    listarAssentos();
+                    listarAssentos(sala);
                     break;
                 case 0:
                     System.out.println("Voltando ao menu principal...");
@@ -405,7 +405,6 @@ public class Menu {
     }
 
     public void excluirAssento(Sala sala){
-        try{
             System.out.println(sala.getAssentos());
 
             System.out.println("Qual a fileira do assento a ser excluído?");
@@ -419,10 +418,25 @@ public class Menu {
             }else{
                 System.out.println("Esse assento não existe!");
             }
+    }
 
-        }catch (Exception e){
-            e.printStackTrace();
+    public void editarAssento(Sala sala){
+        System.out.println("Qual a fileira do assento?");
+        String fileira = scanner.nextLine();
+
+        System.out.println("Qual o número do assento?");
+        String numero = scanner.nextLine();
+
+        if(cinemaService.verificaAssento(sala, fileira, numero)){
+            cinemaService.removeAssento(sala, fileira, numero);
+            criarAssento(sala);
+        }else{
+            System.out.println("Esse assento não existe!");
         }
+    }
+
+    public void listarAssentos(Sala sala){
+        System.out.println(sala.getAssentos());
     }
 
     private boolean confirmarAcao(String acao) {
