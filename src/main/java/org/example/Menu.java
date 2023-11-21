@@ -548,7 +548,7 @@ public class Menu {
         int id = scanner.nextInt();
         scanner.nextLine();
 
-        Map<Integer, Horario> horarioMap = cinemaService.getHorariosFromFile();
+        Map<Integer, Horario> horarioMap = cinemaService.getHorariosFromFilme();
         Horario horario = horarioMap.get(id);
 
         int opcao = 0;
@@ -590,7 +590,7 @@ public class Menu {
     }
 
     public void listarHorarios(){
-        for (Map.Entry<Integer, Horario> entry : cinemaService.getHorariosFromFile().entrySet()) {
+        for (Map.Entry<Integer, Horario> entry : cinemaService.getHorariosFromFilme().entrySet()) {
             System.out.println(entry.getKey() + " = " + entry.getValue());
         }
     }

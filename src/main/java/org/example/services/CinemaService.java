@@ -184,6 +184,14 @@ public class CinemaService {
         salvarEmArquivo(horarios, "horarios.dat");
     }
 
+    public void salvarHorario(Horario horario){
+        //salvar no filme
+    }
+
+    public void excluirHorario(Integer id){}
+
+    public Map<Integer, Horario> getHorariosFromFilme(){return null;};
+
     public int getNextIndex(Map<Integer, Pessoa> map) {
         int newIndex = 0;
 
