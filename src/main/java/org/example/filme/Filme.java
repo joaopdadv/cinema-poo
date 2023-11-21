@@ -6,18 +6,18 @@ import org.example.entity.pessoas.tipos.Ator;
 import org.example.entity.pessoas.tipos.Diretor;
 
 import java.io.Serializable;
-import java.util.ArrayList;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Set;
+import java.util.*;
 
 public class Filme implements Serializable {
 
     private String nome;
     private Genero genero;
+    private Integer ano;
+    private String descricao;
+    private Integer duração;
     private Set<Ator> atores = new HashSet<>();
     private Set<Diretor> diretores = new HashSet<>();
-    private List<Horario> horarios = new ArrayList<>();
+    private Map<Integer, Horario> horarios = new HashMap<>();
 
     public Filme(String nome, Genero genero) {
         this.nome = nome;
@@ -30,6 +30,30 @@ public class Filme implements Serializable {
 
     public void setNome(String nome) {
         this.nome = nome;
+    }
+
+    public Integer getAno() {
+        return ano;
+    }
+
+    public void setAno(Integer ano) {
+        this.ano = ano;
+    }
+
+    public String getDescricao() {
+        return descricao;
+    }
+
+    public void setDescricao(String descricao) {
+        this.descricao = descricao;
+    }
+
+    public Integer getDuração() {
+        return duração;
+    }
+
+    public void setDuração(Integer duração) {
+        this.duração = duração;
     }
 
     public Genero getGenero() {
@@ -56,16 +80,22 @@ public class Filme implements Serializable {
         this.diretores = diretores;
     }
 
-    public List<Horario> getHorarios() {
+    public Map<Integer, Horario> getHorarios() {
         return horarios;
     }
 
-    public void setHorarios(List<Horario> horarioList) {
+    public void setHorarios(Map<Integer, Horario> horarioList) {
         this.horarios = horarioList;
     }
 
     public void addHorario(Horario horario){
-        this.horarios.add(horario);
+        int newIndex = 0;
+
+        while (this.horarios.containsKey(newIndex)) {
+            newIndex++;
+        }
+
+        this.horarios.put(newIndex, horario);
     }
 
     @Override
@@ -73,8 +103,12 @@ public class Filme implements Serializable {
         return "Filme{" +
                 "nome='" + nome + '\'' +
                 ", genero=" + genero +
+                ", ano=" + ano +
+                ", descricao='" + descricao + '\'' +
+                ", duração=" + duração +
                 ", atores=" + atores +
                 ", diretores=" + diretores +
+                ", horarios=" + horarios +
                 '}';
     }
 }

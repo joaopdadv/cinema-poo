@@ -2,6 +2,7 @@ package org.example.services;
 
 import org.example.entity.cinema.Cinema;
 import org.example.entity.horario.Horario;
+import org.example.entity.pessoas.Pessoa;
 import org.example.entity.sala.Sala;
 import org.example.exceptions.CinemaNotFoundException;
 import org.example.exceptions.SalasNotFoundException;
@@ -144,27 +145,27 @@ public class CinemaService {
                 .anyMatch(a -> a.getFileira().equalsIgnoreCase(fileira) && a.getNumero().equalsIgnoreCase(numero));
     }
 
-    public void salvarHorario(Horario horario) {
-        Map<Integer, Horario> horarios = getHorariosFromFile();
+    public void salvarPessoa(Pessoa pessoa) {
+        Map<Integer, Pessoa> pessoas = getPessoasFromFile();
 
-        horarios.put(getNextIndex(horarios), horario);
+        pessoas.put(getNextIndex(pessoas), pessoa);
 
-        salvarEmArquivo(horarios, "horarios.dat");
+        salvarEmArquivo(pessoas, "pessoas.dat");
     }
 
-    public Map<Integer, Horario> getHorariosFromFile(){
+    public Map<Integer, Pessoa> getPessoasFromFile(){
 
-        Map<Integer, Horario> map = new HashMap<>();
+        Map<Integer, Pessoa> map = new HashMap<>();
 
-        File file = new File("horarios.dat");
+        File file = new File("pessoas.dat");
 
         if(file.exists()){
             try{
-                FileInputStream fileInputStream = new FileInputStream("horarios.dat");
+                FileInputStream fileInputStream = new FileInputStream("pessoas.dat");
                 ObjectInputStream objectInputStream = new ObjectInputStream(fileInputStream);
                 Object o = objectInputStream.readObject();
 
-                map = (Map<Integer, Horario>) o;
+                map = (Map<Integer, Pessoa>) o;
 
                 fileInputStream.close();
                 objectInputStream.close();
@@ -175,15 +176,15 @@ public class CinemaService {
         return map;
     }
 
-    public void excluirHorario(int id){
-        Map<Integer, Horario> horarios = getHorariosFromFile();
+    public void excluirPessoa(int id){
+        Map<Integer, Pessoa> horarios = getPessoasFromFile();
 
         horarios.remove(id);
 
         salvarEmArquivo(horarios, "horarios.dat");
     }
 
-    public int getNextIndex(Map<Integer, Horario> map) {
+    public int getNextIndex(Map<Integer, Pessoa> map) {
         int newIndex = 0;
 
         while (map.containsKey(newIndex)) {

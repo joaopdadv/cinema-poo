@@ -3,6 +3,9 @@ package org.example;
 import org.example.entity.cinema.Cinema;
 import org.example.entity.endereco.Endereco;
 import org.example.entity.horario.Horario;
+import org.example.entity.pessoas.Pessoa;
+import org.example.entity.pessoas.tipos.Ator;
+import org.example.entity.pessoas.tipos.Diretor;
 import org.example.entity.poltrona.Assento;
 import org.example.entity.sala.Sala;
 import org.example.exceptions.SalasNotFoundException;
@@ -43,6 +46,9 @@ public class Menu {
             System.out.println(" 2 - SALAS");
             System.out.println(" 3 - ASSENTOS");
             System.out.println(" 4 - HORÁRIOS");
+            System.out.println(" 5 - FILMES");
+            System.out.println(" 6 - PESSOAS");
+            System.out.println(" 7 - INGRESSOS");
             System.out.println(" 0 - Sair");
 
             opcao = scanner.nextInt();
@@ -72,6 +78,15 @@ public class Menu {
                     }else{
                         System.out.println("Não existem salas cadastradas no seu cinema!");
                     }
+                    break;
+                case 5:
+                    mostrarMenuFilmes();
+                    break;
+                case 6:
+                    mostrarMenuPessoas();
+                    break;
+                case 7:
+                    mostrarMenuIngressos();
                     break;
                 case 0:
                     if(confirmarAcao("sair")){
@@ -511,9 +526,6 @@ public class Menu {
         Horario horario = new Horario(date, time, sala);
 
         cinemaService.salvarHorario(horario);
-
-//        System.out.println("Data do horário: " + date.format(DateTimeFormatter.ofPattern("dd/MM/yyyy")));
-//        System.out.println("Horário: " + time.format(DateTimeFormatter.ofPattern("HH:mm")));
     }
 
     public void excluirHorario(){
@@ -583,6 +595,200 @@ public class Menu {
         }
     }
 
+    // -------------------------------------------------------------------------------------------------- //
+    // --------------------------------------------- FILMES --------------------------------------------- //
+    // -------------------------------------------------------------------------------------------------- //
+
+    public void mostrarMenuFilmes(){
+        int opcao = 0;
+        do {
+            System.out.println("---------------------------------------------");
+            System.out.println("MENU FILMES");
+            System.out.println(" 1 - Criar");
+            System.out.println(" 2 - Excluir");
+            System.out.println(" 3 - Editar");
+            System.out.println(" 4 - Obter dados");
+            System.out.println(" 0 - Voltar");
+
+            opcao = scanner.nextInt();
+            scanner.nextLine();
+
+            switch (opcao){
+                case 1:
+                    criarFilme();
+                    break;
+                case 2:
+                    excluirFilme();
+                    break;
+                case 3:
+                    editarFilme();
+                    break;
+                case 4:
+                    listarFilmes();
+                    break;
+                case 0:
+                    System.out.println("Voltando ao menu principal...");
+                    break;
+            }
+            System.out.println("---------------------------------------------");
+        }while (opcao != 0);
+    }
+
+    public void criarFilme(){}
+    public void excluirFilme(){}
+    public void editarFilme(){}
+    public void listarFilmes(){}
+
+    // -------------------------------------------------------------------------------------------------- //
+    // --------------------------------------------- PESSOAS -------------------------------------------- //
+    // -------------------------------------------------------------------------------------------------- //
+
+    public void mostrarMenuPessoas(){
+        int opcao = 0;
+        do {
+            System.out.println("---------------------------------------------");
+            System.out.println("MENU PESSOAS");
+            System.out.println(" 1 - Criar");
+            System.out.println(" 2 - Excluir");
+            System.out.println(" 3 - Editar");
+            System.out.println(" 4 - Obter dados");
+            System.out.println(" 0 - Voltar");
+
+            opcao = scanner.nextInt();
+            scanner.nextLine();
+
+            switch (opcao){
+                case 1:
+                    criarPessoa();
+                    break;
+                case 2:
+                    excluirPessoa();
+                    break;
+                case 3:
+                    editarPessoa();
+                    break;
+                case 4:
+                    listarPessoas();
+                    break;
+                case 0:
+                    System.out.println("Voltando ao menu principal...");
+                    break;
+            }
+            System.out.println("---------------------------------------------");
+        }while (opcao != 0);
+    }
+
+    public void criarPessoa(){
+        System.out.println("A pessoa é um Ator ou Diretor?");
+        System.out.println("1 - Ator");
+        System.out.println("2 - Diretor");
+        System.out.println("0 - Voltar");
+        int opcao = scanner.nextInt();
+        scanner.nextLine();
+
+        System.out.println("Nome:");
+        String nome = scanner.nextLine();
+
+        System.out.println("País de origem:");
+        String pais = scanner.nextLine();
+
+        Pessoa pessoa;
+        if(opcao == 1){
+            pessoa = new Ator(nome, pais);
+        }else if(opcao == 2){
+            pessoa = new Diretor(nome, pais);
+        }else{
+            return;
+        }
+
+        cinemaService.salvarPessoa(pessoa);
+    }
+    public void excluirPessoa(){
+        listarHorarios();
+        System.out.println("-------------------");
+        System.out.println("Qual o identificador da pessoa para ser excluída?");
+        int id = scanner.nextInt();
+        scanner.nextLine();
+
+        if(confirmarAcao("remover pessoa")){
+            cinemaService.excluirPessoa(id);
+            System.out.println("Pessoa excluída com sucesso!");
+        }
+    }
+    public void editarPessoa(){
+        listarPessoas();
+        System.out.println("-------------------");
+        System.out.println("Qual o identificador da pessoa para ser editada?");
+        int id = scanner.nextInt();
+        scanner.nextLine();
+
+        Map<Integer, Pessoa> pessoasMap = cinemaService.getPessoasFromFile();
+        Pessoa pessoa = pessoasMap.get(id);
+
+        int opcao = 0;
+        do{
+            System.out.println("Editar qual campo?");
+            System.out.println(" 1 - Nome");
+            System.out.println(" 2 - País de Origem");
+            System.out.println(" 0 - Voltar");
+            opcao = scanner.nextInt();
+            scanner.nextLine();
+
+            if (opcao == 1){
+                System.out.println("Novo nome:");
+                String nome = scanner.nextLine();
+
+                pessoa.setNome(nome);
+            }else if(opcao == 2){
+                System.out.println("Novo país:");
+                String pais = scanner.nextLine();
+
+                pessoa.setPaisOrigem(pais);
+            }
+
+            pessoasMap.put(id, pessoa);
+            cinemaService.salvarEmArquivo(pessoasMap, "pessoas.dat");
+        }while(opcao != 0);
+    }
+    public void listarPessoas(){
+        for (Map.Entry<Integer, Pessoa> entry : cinemaService.getPessoasFromFile().entrySet()) {
+            System.out.println(entry.getKey() + " = " + entry.getValue());
+        }
+    }
+
+    // -------------------------------------------------------------------------------------------------- //
+    // --------------------------------------------- INGRESSOS ------------------------------------------ //
+    // -------------------------------------------------------------------------------------------------- //
+
+    public void mostrarMenuIngressos(){
+        int opcao = 0;
+        do {
+            System.out.println("---------------------------------------------");
+            System.out.println("MENU INGRESSOS");
+            System.out.println(" 1 - Criar");
+            System.out.println(" 2 - Obter dados");
+            System.out.println(" 0 - Voltar");
+
+            opcao = scanner.nextInt();
+            scanner.nextLine();
+
+            switch (opcao){
+                case 1:
+                    criarIngresso();
+                    break;
+                case 2:
+                    listarIngressos();
+                    break;
+                case 0:
+                    System.out.println("Voltando ao menu principal...");
+                    break;
+            }
+            System.out.println("---------------------------------------------");
+        }while (opcao != 0);
+    }
+
+    public void criarIngresso(){}
+    public void listarIngressos(){}
 
     private boolean confirmarAcao(String acao) {
         System.out.println("Você tem certeza que quer " + acao + "?");
