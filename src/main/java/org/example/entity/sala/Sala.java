@@ -1,5 +1,6 @@
 package org.example.entity.sala;
 
+import org.example.entity.cinema.Cinema;
 import org.example.entity.poltrona.Assento;
 
 import java.io.Serializable;
@@ -8,6 +9,7 @@ import java.util.*;
 public class Sala implements Serializable {
 
     private String nome;
+    private Cinema cinema;
     private Set<Assento> assentos = new HashSet<>();
 
     public Sala(String nome) {
@@ -33,6 +35,14 @@ public class Sala implements Serializable {
 
     public void setAssentos(Set<Assento> poltronas) {
         this.assentos = poltronas;
+    }
+
+    public Cinema getCinema() {
+        return cinema;
+    }
+
+    public void setCinema(Cinema cinema) {
+        this.cinema = cinema;
     }
 
     @Override

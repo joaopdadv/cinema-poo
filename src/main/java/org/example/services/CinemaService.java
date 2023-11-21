@@ -1,15 +1,13 @@
 package org.example.services;
 
 import org.example.entity.cinema.Cinema;
-import org.example.entity.poltrona.Assento;
+import org.example.entity.horario.Horario;
 import org.example.entity.sala.Sala;
 import org.example.exceptions.CinemaNotFoundException;
 import org.example.exceptions.SalasNotFoundException;
 
 import java.io.*;
-import java.util.List;
-import java.util.Set;
-import java.util.stream.Collectors;
+import java.util.*;
 
 public class CinemaService {
 
@@ -144,5 +142,54 @@ public class CinemaService {
     public boolean verificaAssento(Sala sala, String fileira, String numero) {
         return sala.getAssentos().stream()
                 .anyMatch(a -> a.getFileira().equalsIgnoreCase(fileira) && a.getNumero().equalsIgnoreCase(numero));
+    }
+
+    public void salvarHorario(Horario horario) {
+        Map<Integer, Horario> horarios = getHorariosFromFile();
+
+        horarios.put(getNextIndex(horarios), horario);
+
+        salvarEmArquivo(horarios, "horarios.dat");
+    }
+
+    public Map<Integer, Horario> getHorariosFromFile(){
+
+        Map<Integer, Horario> map = new HashMap<>();
+
+        File file = new File("horarios.dat");
+
+        if(file.exists()){
+            try{
+                FileInputStream fileInputStream = new FileInputStream("horarios.dat");
+                ObjectInputStream objectInputStream = new ObjectInputStream(fileInputStream);
+                Object o = objectInputStream.readObject();
+
+                map = (Map<Integer, Horario>) o;
+
+                fileInputStream.close();
+                objectInputStream.close();
+            }catch (Exception e){
+                e.printStackTrace();
+            }
+        }
+        return map;
+    }
+
+    public void excluirHorario(int id){
+        Map<Integer, Horario> horarios = getHorariosFromFile();
+
+        horarios.remove(id);
+
+        salvarEmArquivo(horarios, "horarios.dat");
+    }
+
+    public int getNextIndex(Map<Integer, Horario> map) {
+        int newIndex = 0;
+
+        while (map.containsKey(newIndex)) {
+            newIndex++;
+        }
+
+        return newIndex;
     }
 }

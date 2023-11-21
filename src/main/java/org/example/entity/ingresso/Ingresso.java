@@ -8,8 +8,9 @@ import java.io.File;
 import java.io.Serializable;
 import java.time.Instant;
 import java.util.Date;
+import java.util.Objects;
 
-public class Ingresso implements Serializable {
+public class Ingresso implements Serializable{
     private String nomeComprador;
     private Date data = Date.from(Instant.now());
     private String celular;
@@ -83,6 +84,19 @@ public class Ingresso implements Serializable {
 
     public void setFilme(Filme filme) {
         this.filme = filme;
+    }
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (!(o instanceof Ingresso)) return false;
+        Ingresso ingresso = (Ingresso) o;
+        return isMeiaEntrada() == ingresso.isMeiaEntrada() && Objects.equals(getNomeComprador(), ingresso.getNomeComprador()) && Objects.equals(data, ingresso.data) && Objects.equals(getCelular(), ingresso.getCelular()) && Objects.equals(getPreco(), ingresso.getPreco()) && Objects.equals(getAssento(), ingresso.getAssento()) && Objects.equals(getHorario(), ingresso.getHorario()) && Objects.equals(getFilme(), ingresso.getFilme());
+    }
+
+    @Override
+    public int hashCode() {
+        return Objects.hash(getNomeComprador(), data, getCelular(), getPreco(), isMeiaEntrada(), getAssento(), getHorario(), getFilme());
     }
 
     @Override

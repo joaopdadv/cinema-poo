@@ -1,5 +1,6 @@
 package org.example.entity.horario;
 
+import org.example.entity.cinema.Cinema;
 import org.example.entity.sala.Sala;
 import org.example.filme.Filme;
 
@@ -7,6 +8,7 @@ import java.io.Serializable;
 import java.text.SimpleDateFormat;
 import java.time.LocalDate;
 import java.time.LocalTime;
+import java.time.format.DateTimeFormatter;
 import java.util.Date;
 import java.util.Objects;
 
@@ -61,10 +63,6 @@ public class Horario implements Serializable {
 
     @Override
     public String toString() {
-        return "Horario{" +
-                "data=" + data +
-                ", horario=" + horario +
-                ", sala=" + sala +
-                '}';
+        return String.format("%s - %s, sala %s, cinema %s", data.format(DateTimeFormatter.ofPattern("dd/MM/yyyy")), horario, sala.getNome(), sala.getCinema().getNome());
     }
 }

@@ -2,14 +2,18 @@ package org.example;
 
 import org.example.entity.cinema.Cinema;
 import org.example.entity.endereco.Endereco;
+import org.example.entity.horario.Horario;
 import org.example.entity.poltrona.Assento;
 import org.example.entity.sala.Sala;
 import org.example.exceptions.SalasNotFoundException;
 import org.example.services.CinemaService;
 
 import java.io.*;
-import java.sql.SQLOutput;
-import java.util.List;
+import java.time.LocalDate;
+import java.time.LocalTime;
+import java.time.format.DateTimeFormatter;
+import java.util.Date;
+import java.util.Map;
 import java.util.Scanner;
 import java.util.Set;
 import java.util.stream.Collectors;
@@ -38,6 +42,7 @@ public class Menu {
             System.out.println(" 1 - CINEMA");
             System.out.println(" 2 - SALAS");
             System.out.println(" 3 - ASSENTOS");
+            System.out.println(" 4 - HORÁRIOS");
             System.out.println(" 0 - Sair");
 
             opcao = scanner.nextInt();
@@ -57,6 +62,13 @@ public class Menu {
                 case 3:
                     if(cinemaService.salasCadastradas()){
                         mostrarMenuAssentos();
+                    }else{
+                        System.out.println("Não existem salas cadastradas no seu cinema!");
+                    }
+                    break;
+                case 4:
+                    if (cinemaService.salasCadastradas()){
+                        mostrarMenuHorarios();
                     }else{
                         System.out.println("Não existem salas cadastradas no seu cinema!");
                     }
@@ -336,7 +348,7 @@ public class Menu {
     }
 
     // -------------------------------------------------------------------------------------------------- //
-    // --------------------------------------------- ASSENTO --------------------------------------------- //
+    // --------------------------------------------- ASSENTO -------------------------------------------- //
     // -------------------------------------------------------------------------------------------------- //
 
     public void mostrarMenuAssentos(){
@@ -438,6 +450,139 @@ public class Menu {
     public void listarAssentos(Sala sala){
         System.out.println(sala.getAssentos());
     }
+
+    // -------------------------------------------------------------------------------------------------- //
+    // --------------------------------------------- HORARIOS ------------------------------------------- //
+    // -------------------------------------------------------------------------------------------------- //
+
+    public void mostrarMenuHorarios(){
+        int opcao = 0;
+        do {
+            System.out.println("---------------------------------------------");
+            System.out.println("MENU HORARIOS");
+            System.out.println(" 1 - Criar");
+            System.out.println(" 2 - Excluir");
+            System.out.println(" 3 - Editar");
+            System.out.println(" 4 - Obter dados");
+            System.out.println(" 0 - Voltar");
+
+            opcao = scanner.nextInt();
+            scanner.nextLine();
+
+            switch (opcao){
+                case 1:
+                    criarHorario();
+                    break;
+                case 2:
+                    excluirHorario();
+                    break;
+                case 3:
+                   editarHorario();
+                    break;
+                case 4:
+                    listarHorarios();
+                    break;
+                case 0:
+                    System.out.println("Voltando ao menu principal...");
+                    break;
+            }
+            System.out.println("---------------------------------------------");
+        }while (opcao != 0);
+    }
+
+    public void criarHorario(){
+        System.out.println("Qual o nome da sala que deseja adicionar um horário?");
+        String nomeSala = scanner.nextLine();
+
+        Sala sala = cinemaService.getSalaByName(nomeSala);
+
+        if(sala == null){
+            return;
+        }
+
+        System.out.println("Qual a data do horário? (dd/mm/yyyy)");
+        String inputDate = scanner.nextLine();
+        System.out.println("Qual a horário? (hh:mm)");
+        String inputTime = scanner.nextLine();
+
+        LocalDate date = LocalDate.parse(inputDate, DateTimeFormatter.ofPattern("dd/MM/yyyy"));
+        LocalTime time = LocalTime.parse(inputTime, DateTimeFormatter.ofPattern("HH:mm"));
+
+        Horario horario = new Horario(date, time, sala);
+
+        cinemaService.salvarHorario(horario);
+
+//        System.out.println("Data do horário: " + date.format(DateTimeFormatter.ofPattern("dd/MM/yyyy")));
+//        System.out.println("Horário: " + time.format(DateTimeFormatter.ofPattern("HH:mm")));
+    }
+
+    public void excluirHorario(){
+        listarHorarios();
+        System.out.println("-------------------");
+        System.out.println("Qual o identificador do horário para ser excluído?");
+        int id = scanner.nextInt();
+        scanner.nextLine();
+
+        if(confirmarAcao("remover horário")){
+            cinemaService.excluirHorario(id);
+            System.out.println("Horário excluído com sucesso!");
+        }
+    }
+
+    public void editarHorario(){
+        listarHorarios();
+        System.out.println("-------------------");
+        System.out.println("Qual o identificador do horário para ser editado?");
+        int id = scanner.nextInt();
+        scanner.nextLine();
+
+        Map<Integer, Horario> horarioMap = cinemaService.getHorariosFromFile();
+        Horario horario = horarioMap.get(id);
+
+        int opcao = 0;
+        do{
+            System.out.println("Editar qual campo?");
+            System.out.println(" 1 - Data");
+            System.out.println(" 2 - Horário");
+            System.out.println(" 3 - Sala");
+            System.out.println(" 0 - Voltar");
+            opcao = scanner.nextInt();
+            scanner.nextLine();
+
+            if (opcao == 1){
+                System.out.println("Nova data:");
+                String inputDate = scanner.nextLine();
+
+                horario.setData(LocalDate.parse(inputDate, DateTimeFormatter.ofPattern("dd/MM/yyyy")));
+            }else if(opcao == 2){
+                System.out.print("Novo Horário:");
+                String inputTime = scanner.nextLine();
+
+                horario.setHorario(LocalTime.parse(inputTime, DateTimeFormatter.ofPattern("HH:mm")));
+            } else if (opcao == 3) {
+                System.out.println("Nova sala:");
+                String nomeSala = scanner.nextLine();
+
+                Sala sala = cinemaService.getSalaByName(nomeSala);
+
+                if(sala != null){
+                    horario.setSala(sala);
+                }else{
+                    System.out.println("Essa sala não existe");
+                }
+            }
+
+            horarioMap.put(id, horario);
+            cinemaService.salvarEmArquivo(horarioMap, "horarios.dat");
+        }while(opcao != 0);
+    }
+
+    public void listarHorarios(){
+        for (Map.Entry<Integer, Horario> entry : cinemaService.getHorariosFromFile().entrySet()) {
+            System.out.println(entry.getKey() + " = " + entry.getValue());
+        }
+    }
+
 
     private boolean confirmarAcao(String acao) {
         System.out.println("Você tem certeza que quer " + acao + "?");

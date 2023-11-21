@@ -45,6 +45,7 @@ public class Cinema implements Serializable {
     }
 
     public void addSala(Sala sala){
+        sala.setCinema(this);
         salas.add(sala);
     }
 
