@@ -276,9 +276,9 @@ public class CinemaService {
         return newIndex;
     }
 
-    public Set<Genero> getGenerosFromFile(){
+    public Map<Integer, Genero> getGenerosFromFile(){
 
-        Set<Genero> set = new HashSet<>();
+        Map<Integer, Genero> map = new HashMap<>();
 
         File file = new File("generos.dat");
 
@@ -288,7 +288,7 @@ public class CinemaService {
                 ObjectInputStream objectInputStream = new ObjectInputStream(fileInputStream);
                 Object o = objectInputStream.readObject();
 
-                set = (Set<Genero>) o;
+                map = (Map<Integer, Genero>) o;
 
                 fileInputStream.close();
                 objectInputStream.close();
@@ -296,7 +296,7 @@ public class CinemaService {
                 e.printStackTrace();
             }
         }
-        return set;
+        return map;
     }
 
     public boolean verificaHorarios(){
@@ -305,27 +305,32 @@ public class CinemaService {
     }
 
     public void salvarGenero(Genero genero){
-        Set<Genero> generos = getGenerosFromFile();
+        Map<Integer, Genero> generosMap = getGenerosFromFile();
 
-        generos.add(genero);
+        generosMap.put(getNextIndexGenero(generosMap), genero);
 
-        salvarEmArquivo(generos, "generos.dat");
+        salvarEmArquivo(generosMap, "generos.dat");
+    }
+
+    public void editarGenero(Integer id, Genero genero){
+        Map<Integer, Genero> generosMap = getGenerosFromFile();
+
+        generosMap.put(id, genero);
+
+        salvarEmArquivo(generosMap, "generos.dat");
+    }
+
+    public int getNextIndexGenero(Map<Integer, Genero> map) {
+        int newIndex = 0;
+
+        while (map.containsKey(newIndex)) {
+            newIndex++;
+        }
+
+        return newIndex;
     }
 
     public void deletarGenero(Genero genero){
         //TODO: remover do Set por nome e percorrer filmes e deletar também.
-    }
-
-    public Map<Integer, Genero> getGenerosMapFromFile() {
-        Set<Genero> generoSet = getGenerosFromFile();
-
-        Map<Integer, Genero> generosMap = new HashMap<>();
-
-        int id = 0;
-        for (Genero genero : generoSet) {
-            generosMap.put(id++, genero);
-        }
-
-        return generosMap;
     }
 }

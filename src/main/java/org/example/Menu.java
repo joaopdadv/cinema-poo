@@ -52,7 +52,8 @@ public class Menu {
             System.out.println(" 4 - HORÁRIOS");
             System.out.println(" 5 - FILMES");
             System.out.println(" 6 - PESSOAS");
-            System.out.println(" 7 - INGRESSOS");
+            System.out.println(" 7 - GENEROS");
+            System.out.println(" 8 - INGRESSOS");
             System.out.println(" 0 - Sair");
 
             opcao = scanner.nextInt();
@@ -90,6 +91,9 @@ public class Menu {
                     mostrarMenuPessoas();
                     break;
                 case 7:
+                    mostrarMenuGeneros();
+                    break;
+                case 8:
                     mostrarMenuIngressos();
                     break;
                 case 0:
@@ -657,13 +661,13 @@ public class Menu {
 
         if(pedeAcao("Adicionar um genero")){
             if(cinemaService.verificaArquivo("generos.dat")){
-                Map<Integer, Genero> generosMap = cinemaService.getGenerosMapFromFile();
+                Map<Integer, Genero> generosMap = cinemaService.getGenerosFromFile();
                 printMap(generosMap);
                 Integer id = 0;
                 do{
                     System.out.println("Qual o identificador do genero do filme?");
                     id = scanner.nextInt();
-                }while (generosMap.containsKey(id));
+                }while (!generosMap.containsKey(id));
 
                 filme.setGenero(generosMap.get(id));
             }else{
@@ -886,16 +890,30 @@ public class Menu {
     }
 
     public void criarGenero(){
+        System.out.println("nome do gênero:");
+        String nome = scanner.nextLine();
 
+        cinemaService.salvarGenero(new Genero(nome));
     }
     public void excluirGenero(){
 
     }
     public void editarGenero() {
+        listarGeneros();
 
+        System.out.println("Qual o identificador do genero para ser editado?");
+        Integer id = scanner.nextInt();
+        scanner.nextLine();
+
+        System.out.println("Novo nome:");
+        String nome = scanner.nextLine();
+
+        Genero genero = new Genero(nome);
+
+        cinemaService.editarGenero(id, genero);
     }
     public void listarGeneros(){
-
+        printMap(cinemaService.getGenerosFromFile());
     }
 
     // -------------------------------------------------------------------------------------------------- //
