@@ -2,15 +2,19 @@ package org.example;
 
 import org.example.entity.cinema.Cinema;
 import org.example.entity.endereco.Endereco;
+import org.example.entity.genero.Genero;
 import org.example.entity.horario.Horario;
 import org.example.entity.pessoas.Pessoa;
 import org.example.entity.pessoas.tipos.Ator;
 import org.example.entity.pessoas.tipos.Diretor;
 import org.example.entity.poltrona.Assento;
 import org.example.entity.sala.Sala;
+import org.example.exceptions.CinemaNotFoundException;
 import org.example.exceptions.SalasNotFoundException;
+import org.example.filme.Filme;
 import org.example.services.CinemaService;
 
+import javax.xml.transform.Source;
 import java.io.*;
 import java.time.LocalDate;
 import java.time.LocalTime;
@@ -59,7 +63,7 @@ public class Menu {
                     mostrarMenuCinema();
                     break;
                 case 2:
-                    if(cinemaService.cinemaCadastrado()) {
+                    if(cinemaService.verificaArquivo("cinemas.dat")) {
                         mostrarMenuSalas();
                     }else{
                         System.out.println("É preciso cadastrar um Cinema!");
@@ -72,13 +76,13 @@ public class Menu {
                         System.out.println("Não existem salas cadastradas no seu cinema!");
                     }
                     break;
-                case 4:
-                    if (cinemaService.salasCadastradas()){
-                        mostrarMenuHorarios();
-                    }else{
-                        System.out.println("Não existem salas cadastradas no seu cinema!");
-                    }
-                    break;
+//                case 4:
+//                    if (cinemaService.salasCadastradas()){
+//                        mostrarMenuHorarios();
+//                    }else{
+//                        System.out.println("Não existem salas cadastradas no seu cinema!");
+//                    }
+//                    break;
                 case 5:
                     mostrarMenuFilmes();
                     break;
@@ -178,7 +182,7 @@ public class Menu {
         try{
             File file = new File("cinemas.dat");
 
-            if (cinemaService.cinemaCadastrado() && confirmarAcao("excluir cinema")){
+            if (cinemaService.verificaArquivo("cinemas.dat") && confirmarAcao("excluir cinema")){
                 if (file.delete()) {
                     System.out.println("Cinema excluído com sucesso!");
                 } else {
@@ -192,7 +196,7 @@ public class Menu {
 
     public void editarCinema(){
         try{
-            if (cinemaService.cinemaCadastrado()){
+            if (cinemaService.verificaArquivo("cinemas.dat")){
                 Cinema c = cinemaService.lerArquivoCinemas();
 
                 int opcao = 0;
@@ -231,7 +235,7 @@ public class Menu {
 
     public void listarCinema(){
         try{
-            if (cinemaService.cinemaCadastrado()){
+            if (cinemaService.verificaArquivo("cinemas.dat")){
                 Cinema c = cinemaService.lerArquivoCinemas();
                 System.out.println(c);
             }
@@ -470,7 +474,7 @@ public class Menu {
     // --------------------------------------------- HORARIOS ------------------------------------------- //
     // -------------------------------------------------------------------------------------------------- //
 
-    public void mostrarMenuHorarios(){
+    public void mostrarMenuHorarios(Filme filme){
         int opcao = 0;
         do {
             System.out.println("---------------------------------------------");
@@ -486,10 +490,10 @@ public class Menu {
 
             switch (opcao){
                 case 1:
-                    criarHorario();
+                    criarHorario(filme);
                     break;
                 case 2:
-                    excluirHorario();
+                    excluirHorario(filme);
                     break;
                 case 3:
                    editarHorario();
@@ -505,8 +509,8 @@ public class Menu {
         }while (opcao != 0);
     }
 
-    public void criarHorario(){
-        System.out.println("Qual o nome da sala que deseja adicionar um horário?");
+    public void criarHorario(Filme filme){
+        System.out.println("Qual o nome da sala que deseja adicionar o horário?");
         String nomeSala = scanner.nextLine();
 
         Sala sala = cinemaService.getSalaByName(nomeSala);
@@ -525,10 +529,10 @@ public class Menu {
 
         Horario horario = new Horario(date, time, sala);
 
-        cinemaService.salvarHorario(horario);
+        cinemaService.salvarHorario(horario, filme);
     }
 
-    public void excluirHorario(){
+    public void excluirHorario(Filme filme){
         listarHorarios();
         System.out.println("-------------------");
         System.out.println("Qual o identificador do horário para ser excluído?");
@@ -536,7 +540,7 @@ public class Menu {
         scanner.nextLine();
 
         if(confirmarAcao("remover horário")){
-            cinemaService.excluirHorario(id);
+            cinemaService.excluirHorario(id, filme);
             System.out.println("Horário excluído com sucesso!");
         }
     }
@@ -634,10 +638,99 @@ public class Menu {
         }while (opcao != 0);
     }
 
-    public void criarFilme(){}
+    public void criarFilme(){
+        System.out.println("Nome do filme:");
+        String nome = scanner.nextLine();
+
+        System.out.println("Ano de lançamento:");
+        Integer ano = scanner.nextInt();
+        scanner.nextLine();
+
+        System.out.println("Descrição:");
+        String desc = scanner.nextLine();
+
+        System.out.println("Duração (minutos):");
+        Integer duracao = scanner.nextInt();
+        scanner.nextLine();
+
+        Filme filme = new Filme(nome, ano, desc, duracao);
+
+        if(pedeAcao("Adicionar um genero")){
+            if(cinemaService.verificaArquivo("generos.dat")){
+                Map<Integer, Genero> generosMap = cinemaService.getGenerosMapFromFile();
+                printMap(generosMap);
+                Integer id = 0;
+                do{
+                    System.out.println("Qual o identificador do genero do filme?");
+                    id = scanner.nextInt();
+                }while (generosMap.containsKey(id));
+
+                filme.setGenero(generosMap.get(id));
+            }else{
+                System.out.println("Gêneros não encontrados nos arquivos");
+            }
+        }
+
+
+        if(pedeAcao("Adicionar um ator?")){
+            if(cinemaService.verificaAtores()){
+                Map<Integer, Ator> mapAtores = cinemaService.getMapAtores();
+                printMap(mapAtores);
+                boolean pedirAtor = true;
+                do{
+                    System.out.println("Qual o identificador da pessoa para ser adicionada?");
+                    Integer id = scanner.nextInt();
+                    scanner.nextLine();
+
+                    filme.addAtor(mapAtores.get(id));
+                    pedirAtor = pedeAcao("Adicionar mais um ator?");
+                }while (pedirAtor);
+
+                System.out.println("Atores adicionados com sucesso!");
+            }else{
+                System.out.println("Atores não encontrados nos arquivos.");
+            }
+        }
+
+        if(pedeAcao("Adicionar um diretor?")){
+            if(cinemaService.verificaDiretores()){
+                Map<Integer, Diretor> mapDiretores = cinemaService.getMapDiretores();
+                printMap(mapDiretores);
+                boolean pedirDiretor = true;
+                do{
+                    System.out.println("Qual o identificador da pessoa para ser adicionada?");
+                    Integer id = scanner.nextInt();
+                    scanner.nextLine();
+
+                    filme.addDiretor(mapDiretores.get(id));
+                    pedirDiretor = pedeAcao("adicionar mais um diretor?");
+                }while (pedirDiretor);
+
+                System.out.println("Diretores adicionados com sucesso!");
+            }else{
+                System.out.println("Diretores não encontrados nos arquivos.");
+            }
+        }
+
+        if (pedeAcao("Adicionar horário?")){
+                boolean continuar;
+                do{
+                    criarHorario(filme);
+                    continuar = pedeAcao("adicionar mais um horário?");
+                }while(continuar);
+        }
+
+        cinemaService.salvarFilme(filme);
+    }
     public void excluirFilme(){}
     public void editarFilme(){}
-    public void listarFilmes(){}
+    public void listarFilmes(){
+        try{
+            System.out.println(cinemaService.lerArquivoCinemas().getFilmes());
+        }catch (CinemaNotFoundException e){
+            e.printStackTrace();
+        }
+    }
 
     // -------------------------------------------------------------------------------------------------- //
     // --------------------------------------------- PESSOAS -------------------------------------------- //
@@ -715,7 +808,7 @@ public class Menu {
             System.out.println("Pessoa excluída com sucesso!");
         }
     }
-    public void editarPessoa(){
+    public void editarPessoa() {
         listarPessoas();
         System.out.println("-------------------");
         System.out.println("Qual o identificador da pessoa para ser editada?");
@@ -724,9 +817,8 @@ public class Menu {
 
         Map<Integer, Pessoa> pessoasMap = cinemaService.getPessoasFromFile();
         Pessoa pessoa = pessoasMap.get(id);
-
         int opcao = 0;
-        do{
+        do {
             System.out.println("Editar qual campo?");
             System.out.println(" 1 - Nome");
             System.out.println(" 2 - País de Origem");
@@ -734,12 +826,12 @@ public class Menu {
             opcao = scanner.nextInt();
             scanner.nextLine();
 
-            if (opcao == 1){
+            if (opcao == 1) {
                 System.out.println("Novo nome:");
                 String nome = scanner.nextLine();
 
                 pessoa.setNome(nome);
-            }else if(opcao == 2){
+            } else if (opcao == 2) {
                 System.out.println("Novo país:");
                 String pais = scanner.nextLine();
 
@@ -748,12 +840,62 @@ public class Menu {
 
             pessoasMap.put(id, pessoa);
             cinemaService.salvarEmArquivo(pessoasMap, "pessoas.dat");
-        }while(opcao != 0);
+        } while (opcao != 0);
     }
     public void listarPessoas(){
-        for (Map.Entry<Integer, Pessoa> entry : cinemaService.getPessoasFromFile().entrySet()) {
-            System.out.println(entry.getKey() + " = " + entry.getValue());
-        }
+        printMap(cinemaService.getPessoasFromFile());
+    }
+
+    // -------------------------------------------------------------------------------------------------- //
+    // --------------------------------------------- GENEROS -------------------------------------------- //
+    // -------------------------------------------------------------------------------------------------- //
+
+    public void mostrarMenuGeneros(){
+        int opcao = 0;
+        do {
+            System.out.println("---------------------------------------------");
+            System.out.println("MENU GÊNEROS");
+            System.out.println(" 1 - Criar");
+            System.out.println(" 2 - Excluir");
+            System.out.println(" 3 - Editar");
+            System.out.println(" 4 - Obter dados");
+            System.out.println(" 0 - Voltar");
+
+            opcao = scanner.nextInt();
+            scanner.nextLine();
+
+            switch (opcao){
+                case 1:
+                    criarGenero();
+                    break;
+                case 2:
+                    excluirGenero();
+                    break;
+                case 3:
+                    editarGenero();
+                    break;
+                case 4:
+                    listarGeneros();
+                    break;
+                case 0:
+                    System.out.println("Voltando ao menu principal...");
+                    break;
+            }
+            System.out.println("---------------------------------------------");
+        }while (opcao != 0);
+    }
+
+    public void criarGenero(){
+
+    }
+    public void excluirGenero(){
+
+    }
+    public void editarGenero() {
+
+    }
+    public void listarGeneros(){
+
     }
 
     // -------------------------------------------------------------------------------------------------- //
@@ -800,92 +942,21 @@ public class Menu {
 
         return opcao == 1;
     }
+
+    private boolean pedeAcao(String acao) {
+        System.out.println("Você quer " + acao + "?");
+        System.out.println("1 - Sim");
+        System.out.println("0 - Não");
+
+        int opcao = scanner.nextInt();
+        scanner.nextLine();
+
+        return opcao == 1;
+    }
+
+    private static <K, V> void printMap(Map<K, V> map) {
+        for (Map.Entry<K, V> entry : map.entrySet()) {
+            System.out.println(entry.getKey() + " = " + entry.getValue());
+        }
+    }
 }
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-//        try{
-//            File file = new File("arquivo.txt");
-//            FileOutputStream fileOutputStream = new FileOutputStream(file);
-//            fileOutputStream.write("Teste de string sendo escrita num .txt".getBytes(StandardCharsets.UTF_8));
-//            fileOutputStream.close();
-//        }catch (Exception e) {
-//            e.printStackTrace();
-//        }
-//        try{
-//            FileWriter fileWriter = new FileWriter("arquivo.txt");
-//            fileWriter.write("Meu deus do ceu arthur silva é meio gayzinho");
-//            fileWriter.write("\n");
-//            fileWriter.write("Meu deus do ceu arthur silva é meio gayzinho");
-//
-//            PrintWriter printWriter = new PrintWriter(fileWriter);
-//            printWriter.println("Gravado com printWriter");
-//
-//            printWriter.close();
-//            fileWriter.close();
-//        }catch (Exception e){
-//            e.printStackTrace();
-//        }
-//
-//        try {
-//            FileInputStream fileInputStream = new FileInputStream("arquivo.txt");
-//            InputStreamReader inputStreamReader = new InputStreamReader(fileInputStream);
-//            BufferedReader bufferedReader = new BufferedReader(inputStreamReader);
-//            String linha;
-//
-//            while ((linha = bufferedReader.readLine()) != null){
-//                System.out.println(linha);
-//            }
-//
-//            fileInputStream.close();
-//        }catch (Exception e){
-//            e.printStackTrace();
-//        }
-
-//        Cinema cinema = new Cinema(1, "Gnc Cinemas");
-//
-//        try{
-//            FileOutputStream fileOutputStream = new FileOutputStream("cinemas.dat");
-//            ObjectOutputStream objectOutputStream = new ObjectOutputStream(fileOutputStream);
-//
-//            objectOutputStream.writeObject(cinema);
-//
-//            objectOutputStream.close();
-//            fileOutputStream.close();
-//        }catch (Exception e){
-//            e.printStackTrace();
-//        }
-//
-//        try{
-//            FileInputStream fileInputStream = new FileInputStream("cinemas.dat");
-//            ObjectInputStream objectInputStream = new ObjectInputStream(fileInputStream);
-//
-//            Object object = objectInputStream.readObject();
-//            Cinema c = (Cinema) object;
-//
-//            System.out.println(c.getNome());
-//
-//            objectInputStream.close();
-//            fileInputStream.close();
-//        }catch (Exception e){
-//            e.printStackTrace();
-//        }

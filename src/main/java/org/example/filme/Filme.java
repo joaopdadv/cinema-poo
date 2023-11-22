@@ -2,6 +2,7 @@ package org.example.filme;
 
 import org.example.entity.genero.Genero;
 import org.example.entity.horario.Horario;
+import org.example.entity.pessoas.Pessoa;
 import org.example.entity.pessoas.tipos.Ator;
 import org.example.entity.pessoas.tipos.Diretor;
 
@@ -19,9 +20,11 @@ public class Filme implements Serializable {
     private Set<Diretor> diretores = new HashSet<>();
     private Map<Integer, Horario> horarios = new HashMap<>();
 
-    public Filme(String nome, Genero genero) {
+    public Filme(String nome, Integer ano, String descricao, Integer duração) {
         this.nome = nome;
-        this.genero = genero;
+        this.ano = ano;
+        this.descricao = descricao;
+        this.duração = duração;
     }
 
     public String getNome() {
@@ -98,6 +101,13 @@ public class Filme implements Serializable {
         this.horarios.put(newIndex, horario);
     }
 
+    public void addAtor(Ator ator){
+        atores.add(ator);
+    }
+
+    public void addDiretor(Diretor diretor){
+        diretores.add(diretor);
+    }
     @Override
     public String toString() {
         return "Filme{" +

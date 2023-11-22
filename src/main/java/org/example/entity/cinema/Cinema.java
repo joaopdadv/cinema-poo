@@ -2,6 +2,7 @@ package org.example.entity.cinema;
 
 import org.example.entity.endereco.Endereco;
 import org.example.entity.sala.Sala;
+import org.example.filme.Filme;
 
 import java.io.Serializable;
 import java.util.ArrayList;
@@ -14,6 +15,8 @@ public class Cinema implements Serializable {
     private String nome;
     private Endereco endereco;
     private Set<Sala> salas = new HashSet<>();
+
+    private List<Filme> filmes = new ArrayList<>();
 
     public Cinema(String nome, Endereco endereco) {
         this.nome = nome;
@@ -44,9 +47,21 @@ public class Cinema implements Serializable {
         this.salas = salas;
     }
 
+    public List<Filme> getFilmes() {
+        return filmes;
+    }
+
+    public void setFilmes(List<Filme> filmes) {
+        this.filmes = filmes;
+    }
+
     public void addSala(Sala sala){
         sala.setCinema(this);
         salas.add(sala);
+    }
+
+    public void addFilme(Filme filme){
+        filmes.add(filme);
     }
 
     @Override

@@ -1,20 +1,24 @@
 package org.example.services;
 
 import org.example.entity.cinema.Cinema;
+import org.example.entity.genero.Genero;
 import org.example.entity.horario.Horario;
 import org.example.entity.pessoas.Pessoa;
+import org.example.entity.pessoas.tipos.Ator;
+import org.example.entity.pessoas.tipos.Diretor;
 import org.example.entity.sala.Sala;
 import org.example.exceptions.CinemaNotFoundException;
 import org.example.exceptions.SalasNotFoundException;
+import org.example.filme.Filme;
 
 import java.io.*;
 import java.util.*;
 
 public class CinemaService {
 
-    public Boolean cinemaCadastrado(){
+    public boolean verificaArquivo(String path){
         try{
-            File file = new File("cinemas.dat");
+            File file = new File(path);
 
             if (file.exists()) {
                 return true;
@@ -170,27 +174,97 @@ public class CinemaService {
                 fileInputStream.close();
                 objectInputStream.close();
             }catch (Exception e){
-                e.printStackTrace();
+
             }
         }
         return map;
     }
 
     public void excluirPessoa(int id){
-        Map<Integer, Pessoa> horarios = getPessoasFromFile();
+        Map<Integer, Pessoa> pessoasMap = getPessoasFromFile();
 
-        horarios.remove(id);
+        pessoasMap.remove(id);
 
-        salvarEmArquivo(horarios, "horarios.dat");
+        //TODO: percorrer filmes e remover também
+
+        salvarEmArquivo(pessoasMap, "pessoas.dat");
     }
 
-    public void salvarHorario(Horario horario){
-        //salvar no filme
+    public boolean verificaAtores() {
+        Map<Integer, Pessoa> pessoas = getPessoasFromFile();
+
+        for (Pessoa pessoa : pessoas.values()) {
+            if (pessoa instanceof Ator) {
+                return true;
+            }
+        }
+        return false;
     }
 
-    public void excluirHorario(Integer id){}
+    public Map<Integer, Ator> getMapAtores() {
+        Map<Integer, Pessoa> pessoas = getPessoasFromFile();
+        Map<Integer, Ator> atoresMap = new HashMap<>();
 
-    public Map<Integer, Horario> getHorariosFromFilme(){return null;};
+        for (Map.Entry<Integer, Pessoa> entry : pessoas.entrySet()) {
+            if (entry.getValue() instanceof Ator) {
+                Ator ator = (Ator) entry.getValue();
+                atoresMap.put(entry.getKey(), ator);
+            }
+        }
+
+        return atoresMap;
+    }
+
+    public boolean verificaDiretores() {
+        Map<Integer, Pessoa> pessoas = getPessoasFromFile();
+
+        for (Pessoa pessoa : pessoas.values()) {
+            if (pessoa instanceof Diretor) {
+                return true;
+            }
+        }
+        return false;
+    }
+
+    public Map<Integer, Diretor> getMapDiretores() {
+        Map<Integer, Pessoa> pessoas = getPessoasFromFile();
+        Map<Integer, Diretor> diretoresMap = new HashMap<>();
+
+        for (Map.Entry<Integer, Pessoa> entry : pessoas.entrySet()) {
+            if (entry.getValue() instanceof Diretor) {
+                Diretor diretor = (Diretor) entry.getValue();
+                diretoresMap.put(entry.getKey(), diretor);
+            }
+        }
+
+        return diretoresMap;
+    }
+
+    public void salvarHorario(Horario horario, Filme filme){
+        //TODO: salvar no filme
+    }
+
+    public void excluirHorario(Integer id, Filme filme){}
+
+    public Map<Integer, Horario> getHorariosFromFilme(){
+        //TODO: get Map de horarios do filme
+        return null;
+    };
+
+    public void salvarFilme(Filme filme){
+        //TODO: salvar filme na lista dos cinemas
+
+        try{
+            Cinema cinema = lerArquivoCinemas();
+
+            cinema.addFilme(filme);
+
+            salvarEmArquivo(cinema, "cinemas.dat");
+        }catch (CinemaNotFoundException e){
+            e.printStackTrace();
+        }
+
+    }
 
     public int getNextIndex(Map<Integer, Pessoa> map) {
         int newIndex = 0;
@@ -200,5 +274,58 @@ public class CinemaService {
         }
 
         return newIndex;
+    }
+
+    public Set<Genero> getGenerosFromFile(){
+
+        Set<Genero> set = new HashSet<>();
+
+        File file = new File("generos.dat");
+
+        if(file.exists()){
+            try{
+                FileInputStream fileInputStream = new FileInputStream("generos.dat");
+                ObjectInputStream objectInputStream = new ObjectInputStream(fileInputStream);
+                Object o = objectInputStream.readObject();
+
+                set = (Set<Genero>) o;
+
+                fileInputStream.close();
+                objectInputStream.close();
+            }catch (Exception e){
+                e.printStackTrace();
+            }
+        }
+        return set;
+    }
+
+    public boolean verificaHorarios(){
+        //TODO: ver se tem horarios cadastrados
+        return true;
+    }
+
+    public void salvarGenero(Genero genero){
+        Set<Genero> generos = getGenerosFromFile();
+
+        generos.add(genero);
+
+        salvarEmArquivo(generos, "generos.dat");
+    }
+
+    public void deletarGenero(Genero genero){
+        //TODO: remover do Set por nome e percorrer filmes e deletar também.
+    }
+
+    public Map<Integer, Genero> getGenerosMapFromFile() {
+        Set<Genero> generoSet = getGenerosFromFile();
+
+        Map<Integer, Genero> generosMap = new HashMap<>();
+
+        int id = 0;
+        for (Genero genero : generoSet) {
+            generosMap.put(id++, genero);
+        }
+
+        return generosMap;
     }
 }

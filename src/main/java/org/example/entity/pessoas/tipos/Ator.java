@@ -2,7 +2,9 @@ package org.example.entity.pessoas.tipos;
 
 import org.example.entity.pessoas.Pessoa;
 
-public class Ator implements Pessoa {
+import java.io.Serializable;
+
+public class Ator implements Pessoa, Serializable {
 
     private String nome;
     private String paisOrigem;
@@ -25,12 +27,12 @@ public class Ator implements Pessoa {
 
     @Override
     public String getPaisOrigem() {
-        return null;
+        return paisOrigem;
     }
 
     @Override
     public void setPaisOrigem(String paisOrigem) {
-
+        this.paisOrigem = paisOrigem;
     }
 
     @Override
