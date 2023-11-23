@@ -3,6 +3,7 @@ package org.example.entity.pessoas.tipos;
 import org.example.entity.pessoas.Pessoa;
 
 import java.io.Serializable;
+import java.util.Objects;
 
 public class Ator implements Pessoa, Serializable {
 
@@ -51,6 +52,19 @@ public class Ator implements Pessoa, Serializable {
         }
         this.conjuge = null;
         return false;
+    }
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (!(o instanceof Ator)) return false;
+        Ator ator = (Ator) o;
+        return Objects.equals(getNome(), ator.getNome()) && Objects.equals(getPaisOrigem(), ator.getPaisOrigem()) && Objects.equals(conjuge, ator.conjuge);
+    }
+
+    @Override
+    public int hashCode() {
+        return Objects.hash(getNome(), getPaisOrigem(), conjuge);
     }
 
     @Override

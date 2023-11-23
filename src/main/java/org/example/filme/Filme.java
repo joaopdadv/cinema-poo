@@ -15,16 +15,16 @@ public class Filme implements Serializable {
     private Genero genero;
     private Integer ano;
     private String descricao;
-    private Integer duração;
+    private Integer duracao;
     private Set<Ator> atores = new HashSet<>();
     private Set<Diretor> diretores = new HashSet<>();
     private Map<Integer, Horario> horarios = new HashMap<>();
 
-    public Filme(String nome, Integer ano, String descricao, Integer duração) {
+    public Filme(String nome, Integer ano, String descricao, Integer duracao) {
         this.nome = nome;
         this.ano = ano;
         this.descricao = descricao;
-        this.duração = duração;
+        this.duracao = duracao;
     }
 
     public String getNome() {
@@ -51,12 +51,12 @@ public class Filme implements Serializable {
         this.descricao = descricao;
     }
 
-    public Integer getDuração() {
-        return duração;
+    public Integer getDuracao() {
+        return duracao;
     }
 
-    public void setDuração(Integer duração) {
-        this.duração = duração;
+    public void setDuracao(Integer duração) {
+        this.duracao = duração;
     }
 
     public Genero getGenero() {
@@ -108,6 +108,20 @@ public class Filme implements Serializable {
     public void addDiretor(Diretor diretor){
         diretores.add(diretor);
     }
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (!(o instanceof Filme)) return false;
+        Filme filme = (Filme) o;
+        return Objects.equals(getNome(), filme.getNome()) && Objects.equals(getGenero(), filme.getGenero()) && Objects.equals(getAno(), filme.getAno()) && Objects.equals(getDescricao(), filme.getDescricao()) && Objects.equals(getDuracao(), filme.getDuracao()) && Objects.equals(getAtores(), filme.getAtores()) && Objects.equals(getDiretores(), filme.getDiretores()) && Objects.equals(getHorarios(), filme.getHorarios());
+    }
+
+    @Override
+    public int hashCode() {
+        return Objects.hash(getNome(), getGenero(), getAno(), getDescricao(), getDuracao(), getAtores(), getDiretores(), getHorarios());
+    }
+
     @Override
     public String toString() {
         return "Filme{" +
@@ -115,10 +129,10 @@ public class Filme implements Serializable {
                 ", genero=" + genero +
                 ", ano=" + ano +
                 ", descricao='" + descricao + '\'' +
-                ", duração=" + duração +
+                ", duração=" + duracao +
                 ", atores=" + atores +
                 ", diretores=" + diretores +
                 ", horarios=" + horarios +
-                '}';
+                "}\n";
     }
 }

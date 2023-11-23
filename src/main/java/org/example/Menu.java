@@ -19,10 +19,7 @@ import java.io.*;
 import java.time.LocalDate;
 import java.time.LocalTime;
 import java.time.format.DateTimeFormatter;
-import java.util.Date;
-import java.util.Map;
-import java.util.Scanner;
-import java.util.Set;
+import java.util.*;
 import java.util.stream.Collectors;
 
 public class Menu {
@@ -661,7 +658,7 @@ public class Menu {
 
         if(pedeAcao("Adicionar um genero")){
             if(cinemaService.verificaArquivo("generos.dat")){
-                Map<Integer, Genero> generosMap = cinemaService.getGenerosFromFile();
+                Map<Integer, Genero> generosMap = cinemaService.getGenerosMapFromFile();
                 printMap(generosMap);
                 Integer id = 0;
                 do{
@@ -686,8 +683,13 @@ public class Menu {
                     Integer id = scanner.nextInt();
                     scanner.nextLine();
 
-                    filme.addAtor(mapAtores.get(id));
-                    pedirAtor = pedeAcao("Adicionar mais um ator?");
+                    if(mapAtores.containsKey(id)){
+                        filme.addAtor(mapAtores.get(id));
+                    }else{
+                        System.out.println("Esse identificador não existe");
+                    }
+
+                    pedirAtor = pedeAcao("Adicionar mais um ator");
                 }while (pedirAtor);
 
                 System.out.println("Atores adicionados com sucesso!");
@@ -706,8 +708,13 @@ public class Menu {
                     Integer id = scanner.nextInt();
                     scanner.nextLine();
 
-                    filme.addDiretor(mapDiretores.get(id));
-                    pedirDiretor = pedeAcao("adicionar mais um diretor?");
+                    if (mapDiretores.containsKey(id)){
+                        filme.addDiretor(mapDiretores.get(id));
+                    }else{
+                        System.out.println("Esse identificador não existe");
+                    }
+
+                    pedirDiretor = pedeAcao("adicionar mais um diretor");
                 }while (pedirDiretor);
 
                 System.out.println("Diretores adicionados com sucesso!");
@@ -726,14 +733,159 @@ public class Menu {
 
         cinemaService.salvarFilme(filme);
     }
-    public void excluirFilme(){}
-    public void editarFilme(){}
-    public void listarFilmes(){
-        try{
-            System.out.println(cinemaService.lerArquivoCinemas().getFilmes());
-        }catch (CinemaNotFoundException e){
-            e.printStackTrace();
+    public void excluirFilme(){
+        printMap(cinemaService.getFilmesMap());
+        System.out.println("Qual o nome do filme para ser excluído?");
+        Integer id = scanner.nextInt();
+        scanner.nextLine();
+
+        if(confirmarAcao("excluir filme")){
+            cinemaService.excluirFilme(id);
         }
+    }
+    public void editarFilme(){
+
+        int opcao = 0;
+
+        Map<Integer, Filme> filmesMap = cinemaService.getFilmesMap();
+        printMap(filmesMap);
+
+        System.out.println("Qual o identificador do filme para ser editado?");
+        Integer id = scanner.nextInt();
+        scanner.nextLine();
+
+        Filme filme;
+        if(filmesMap.containsKey(id)){
+            filme = filmesMap.get(id);
+        }else{
+            System.out.println("Identificador inválido");
+            return;
+        }
+
+        do{
+            System.out.println("O Que você quer editar?");
+            System.out.println("1 - Nome");
+            System.out.println("2 - Ano");
+            System.out.println("3 - Descrição");
+            System.out.println("4 - Duração");
+            System.out.println("5 - Genero");
+            System.out.println("6 - Adicionar Ator");
+            System.out.println("7 - Remover Ator");
+            System.out.println("8 - Adicionar Diretor");
+            System.out.println("9 - Remover Diretor");
+            System.out.println("0 - Voltar");
+            opcao = scanner.nextInt();
+            scanner.nextLine();
+
+            switch (opcao){
+                case 1:
+                    System.out.println("Novo nome:");
+                    String nome = scanner.nextLine();
+
+                    filme.setNome(nome);
+                    break;
+                case 2:
+                    System.out.println("Nova descrição:");
+                    Integer ano = scanner.nextInt();
+                    scanner.nextLine();
+
+                    filme.setAno(ano);
+                    break;
+                case 3:
+                    System.out.println("Nova descrição:");
+                    String desc = scanner.nextLine();
+
+                    filme.setDescricao(desc);
+                    break;
+                case 4:
+                    System.out.println("Nova duração:");
+                    Integer dur = scanner.nextInt();
+                    scanner.nextLine();
+
+                    filme.setAno(dur);
+                    break;
+                case 5:
+                    printMap(cinemaService.getGenerosMapFromFile());
+                    System.out.println("Identificador do novo gênero:");
+                    Integer idGenero = scanner.nextInt();
+                    scanner.nextLine();
+
+                    filme.setGenero(cinemaService.getGenerosMapFromFile().get(idGenero));
+                    break;
+                case 6:
+                    printMap(cinemaService.getMapAtores());
+                    System.out.println("Identificador do novo ator:");
+                    Integer idNovoAtor = scanner.nextInt();
+                    scanner.nextLine();
+
+                    filme.addAtor(cinemaService.getMapAtores().get(idNovoAtor));
+                    break;
+                case 7:
+                    Map<Integer, Ator> mapAtores = cinemaService.getMapAtores();
+
+                    printMap(mapAtores);
+                    System.out.println("Identificador do ator para ser removido:");
+                    Integer idAtor = scanner.nextInt();
+                    scanner.nextLine();
+
+
+                    // Check if the actor ID exists in the map
+                    if (mapAtores.containsKey(idAtor)) {
+                        Ator ator = mapAtores.get(idAtor);
+
+                        Set<Ator> atorSet = new HashSet<>();
+                        for (Ator a: filme.getAtores()){
+                            if(!a.equals(ator)){
+                                atorSet.add(a);
+                            }
+                        }
+
+                        filme.setAtores(atorSet);
+                        System.out.println("Ator removido com sucesso.");
+                    } else {
+                        System.out.println("Ator com o identificador fornecido não encontrado.");
+                    }
+                case 8:
+                    printMap(cinemaService.getMapDiretores());
+                    System.out.println("Identificador do novo diretor:");
+                    Integer idNovoDiretor = scanner.nextInt();
+                    scanner.nextLine();
+
+                    filme.addDiretor(cinemaService.getMapDiretores().get(idNovoDiretor));
+                    break;
+                case 9:
+                    Map<Integer, Diretor> mapDiretores = cinemaService.getMapDiretores();
+
+                    printMap(mapDiretores);
+                    System.out.println("Identificador do diretor para ser removido:");
+                    Integer idDiretor = scanner.nextInt();
+                    scanner.nextLine();
+
+
+                    // Check if the actor ID exists in the map
+                    if (mapDiretores.containsKey(idDiretor)) {
+                        Diretor diretor = mapDiretores.get(idDiretor);
+
+                        Set<Diretor> diretorSet = new HashSet<>();
+                        for (Diretor d: filme.getDiretores()){
+                            if(!d.equals(diretor)){
+                                diretorSet.add(d);
+                            }
+                        }
+
+                        filme.setDiretores(diretorSet);
+                        System.out.println("Diretor removido com sucesso.");
+                    } else {
+                        System.out.println("Diretor com o identificador fornecido não encontrado.");
+                    }
+                    break;
+            }
+        }while (opcao != 0);
+
+        cinemaService.editarFilme(id, filme);
+    }
+    public void listarFilmes(){
+        printMap(cinemaService.getFilmesMap());
     }
 
     // -------------------------------------------------------------------------------------------------- //
@@ -913,7 +1065,7 @@ public class Menu {
         cinemaService.editarGenero(id, genero);
     }
     public void listarGeneros(){
-        printMap(cinemaService.getGenerosFromFile());
+        printMap(cinemaService.getGenerosMapFromFile());
     }
 
     // -------------------------------------------------------------------------------------------------- //

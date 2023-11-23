@@ -252,8 +252,6 @@ public class CinemaService {
     };
 
     public void salvarFilme(Filme filme){
-        //TODO: salvar filme na lista dos cinemas
-
         try{
             Cinema cinema = lerArquivoCinemas();
 
@@ -276,9 +274,10 @@ public class CinemaService {
         return newIndex;
     }
 
-    public Map<Integer, Genero> getGenerosFromFile(){
 
-        Map<Integer, Genero> map = new HashMap<>();
+    public Set<Genero> getGenerosFromFile(){
+
+        Set<Genero> set = new HashSet<>();
 
         File file = new File("generos.dat");
 
@@ -288,7 +287,7 @@ public class CinemaService {
                 ObjectInputStream objectInputStream = new ObjectInputStream(fileInputStream);
                 Object o = objectInputStream.readObject();
 
-                map = (Map<Integer, Genero>) o;
+                set = (Set<Genero>) o;
 
                 fileInputStream.close();
                 objectInputStream.close();
@@ -296,7 +295,7 @@ public class CinemaService {
                 e.printStackTrace();
             }
         }
-        return map;
+        return set;
     }
 
     public boolean verificaHorarios(){
@@ -305,32 +304,85 @@ public class CinemaService {
     }
 
     public void salvarGenero(Genero genero){
-        Map<Integer, Genero> generosMap = getGenerosFromFile();
+        Set<Genero> generos = getGenerosFromFile();
 
-        generosMap.put(getNextIndexGenero(generosMap), genero);
+        generos.add(genero);
 
-        salvarEmArquivo(generosMap, "generos.dat");
+        salvarEmArquivo(generos, "generos.dat");
     }
 
     public void editarGenero(Integer id, Genero genero){
-        Map<Integer, Genero> generosMap = getGenerosFromFile();
+        Map<Integer, Genero> generosMap = getGenerosMapFromFile();
 
         generosMap.put(id, genero);
 
-        salvarEmArquivo(generosMap, "generos.dat");
+        Set<Genero> generosSet = new HashSet<>(generosMap.values());
+
+        salvarEmArquivo(generosSet, "generos.dat");
     }
 
-    public int getNextIndexGenero(Map<Integer, Genero> map) {
-        int newIndex = 0;
+    public Map<Integer, Genero> getGenerosMapFromFile() {
+        Set<Genero> generoSet = getGenerosFromFile();
 
-        while (map.containsKey(newIndex)) {
-            newIndex++;
+        Map<Integer, Genero> generosMap = new HashMap<>();
+
+        int id = 0;
+        for (Genero genero : generoSet) {
+            generosMap.put(id++, genero);
         }
 
-        return newIndex;
+        return generosMap;
     }
 
-    public void deletarGenero(Genero genero){
+    public void excluirGenero(Genero genero){
         //TODO: remover do Set por nome e percorrer filmes e deletar também.
+    }
+
+    public Map<Integer, Filme> getFilmesMap() {
+        Map<Integer, Filme> filmesMap = new HashMap<>();
+
+        try {
+            List<Filme> filmes = lerArquivoCinemas().getFilmes();
+
+            // Transforma a lista de filmes em um HashMap
+            for (int i = 0; i < filmes.size(); i++) {
+                filmesMap.put(i, filmes.get(i));
+            }
+
+        } catch (CinemaNotFoundException e) {
+            e.printStackTrace();
+        }
+
+        return filmesMap;
+    }
+
+    public void excluirFilme(Integer id){
+        Map<Integer, Filme> filmesMap = getFilmesMap();
+
+        filmesMap.remove(id);
+
+        try {
+            Cinema cinema = lerArquivoCinemas();
+
+            cinema.setFilmes(new ArrayList<>(filmesMap.values()));
+            salvarEmArquivo(cinema, "cinemas.dat");
+        }catch (CinemaNotFoundException e){
+            e.printStackTrace();
+        }
+    }
+
+    public void editarFilme(Integer id, Filme filme){
+        try {
+            Cinema cinema = lerArquivoCinemas();
+
+            Map<Integer, Filme> filmeMap = getFilmesMap();
+
+            filmeMap.put(id, filme);
+
+            cinema.setFilmes(new ArrayList<>(filmeMap.values()));
+            salvarEmArquivo(cinema, "cinemas.dat");
+        }catch (CinemaNotFoundException e){
+            e.printStackTrace();
+        }
     }
 }
