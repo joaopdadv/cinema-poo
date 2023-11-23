@@ -240,15 +240,33 @@ public class CinemaService {
         return diretoresMap;
     }
 
-    public void salvarHorario(Horario horario, Filme filme){
-        //TODO: salvar no filme
+    public void editarHorario(Integer idFilme, Integer idHorario, Horario horario, Filme filme){
+        Map<Integer, Horario> horarioMap = getHorariosFromFilme(filme);
+
+        horarioMap.put(idHorario, horario);
+
+        filme.setHorarios(horarioMap);
+
+        editarFilme(idFilme, filme);
     }
 
-    public void excluirHorario(Integer id, Filme filme){}
+    public void excluirHorario(Integer idHorario, Filme filme) {
+        Map<Integer, Filme> filmeMap = getFilmesMap();
 
-    public Map<Integer, Horario> getHorariosFromFilme(){
-        //TODO: get Map de horarios do filme
-        return null;
+        for (Map.Entry<Integer, Filme> entry : filmeMap.entrySet()) {
+            Integer filmeId = entry.getKey();
+            Filme filmeNoMap = entry.getValue();
+
+            if (filmeNoMap.equals(filme)) {
+                filme.getHorarios().remove(idHorario);
+
+                editarFilme(filmeId, filme);
+            }
+        }
+    }
+
+    public Map<Integer, Horario> getHorariosFromFilme(Filme filme){
+        return filme.getHorarios();
     };
 
     public void salvarFilme(Filme filme){
@@ -312,6 +330,7 @@ public class CinemaService {
     }
 
     public void editarGenero(Integer id, Genero genero){
+        //TODO: atualizacao em cascata nos filmes
         Map<Integer, Genero> generosMap = getGenerosMapFromFile();
 
         generosMap.put(id, genero);
