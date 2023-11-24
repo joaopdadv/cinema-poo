@@ -15,6 +15,7 @@ import org.example.filme.Filme;
 
 import java.io.*;
 import java.util.*;
+import java.util.stream.Collectors;
 
 public class CinemaService {
 
@@ -497,4 +498,22 @@ public class CinemaService {
 
         return false;
     }
+
+    public List<Filme> findFilmesPorPalavraChave(String palavra) {
+
+        try {
+            List<Filme> filmes = lerArquivoCinemas().getFilmes();
+
+            List<Filme> filmesFiltrados = filmes.stream()
+                    .filter(filme -> filme.getNome().toLowerCase().contains(palavra.toLowerCase()))
+                    .collect(Collectors.toList());
+
+            return filmesFiltrados;
+
+        } catch (CinemaNotFoundException e) {
+            e.printStackTrace();
+            return new ArrayList<>();
+        }
+    }
+
 }

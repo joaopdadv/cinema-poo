@@ -631,12 +631,16 @@ public class Menu {
                 Map<Integer, Genero> generosMap = cinemaService.getGenerosMapFromFile();
                 printMap(generosMap);
                 Integer id;
-                do{
-                    System.out.println("Qual o identificador do genero do filme?");
-                    id = scanner.nextInt();
-                }while (!generosMap.containsKey(id));
+                if(generosMap.isEmpty()){
+                    System.out.println("Nenhum genero cadastrado!");
+                }else{
+                    do{
+                        System.out.println("Qual o identificador do genero do filme?");
+                        id = scanner.nextInt();
+                    }while (!generosMap.containsKey(id));
 
-                filme.setGenero(generosMap.get(id));
+                    filme.setGenero(generosMap.get(id));
+                }
             }else{
                 System.out.println("Gêneros não encontrados nos arquivos");
             }
@@ -1080,7 +1084,6 @@ public class Menu {
             System.out.println("MENU INGRESSOS");
             System.out.println(" 1 - Criar");
             System.out.println(" 2 - Obter dados");
-            System.out.println(" 3 - Consultar Ingressos");
             System.out.println(" 0 - Voltar");
 
             opcao = scanner.nextInt();
@@ -1185,10 +1188,9 @@ public class Menu {
         int opcao = 0;
         do {
             System.out.println("---------------------------------------------");
-            System.out.println("MENU INGRESSOS");
-            System.out.println(" 1 - Criar");
-            System.out.println(" 2 - Obter dados");
-            System.out.println(" 3 - Consultar Ingressos");
+            System.out.println("MENU CONSULTAS");
+            System.out.println(" 1 - Consultar filme por nome");
+            System.out.println(" 2 - Ingressos vendidos");
             System.out.println(" 0 - Voltar");
 
             opcao = scanner.nextInt();
@@ -1196,10 +1198,10 @@ public class Menu {
 
             switch (opcao){
                 case 1:
-                    criarIngresso();
+                    filmePorNome();
                     break;
                 case 2:
-                    listarIngressos();
+                    ingressosPorFilme();
                     break;
                 case 0:
                     System.out.println("Voltando ao menu principal...");
@@ -1208,6 +1210,22 @@ public class Menu {
             System.out.println("---------------------------------------------");
         }while (opcao != 0);
     }
+
+    public void filmePorNome(){
+        System.out.println("Palavra chave para pesquisa: ");
+        String palavra = scanner.nextLine();
+
+        List<Filme> filmes = cinemaService.findFilmesPorPalavraChave(palavra);
+
+        if(filmes.isEmpty()){
+            System.out.println("Nenhum filme encontrado com a palavra chave: " + palavra);
+            return;
+        }
+
+        System.out.println(filmes);
+    }
+
+    public void ingressosPorFilme(){}
 
     private boolean confirmarAcao(String acao) {
         System.out.println("Você tem certeza que quer " + acao + "?");
