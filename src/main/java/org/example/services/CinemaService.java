@@ -533,4 +533,28 @@ public class CinemaService {
         }
     }
 
+    public Map<String, Integer> filmesPorIngressos(){
+            List<Ingresso> ingressos = getIngressosFromFile();
+
+            Map<String, Integer> map = new HashMap<>();
+
+            for (Ingresso ingresso : ingressos) {
+                String nomeFilme = ingresso.getFilme().getNome();
+
+                map.put(nomeFilme, map.getOrDefault(nomeFilme, 0) + 1);
+            }
+
+            List<Map.Entry<String, Integer>> sortedList = map.entrySet()
+                    .stream()
+                    .sorted(Map.Entry.comparingByValue(Comparator.reverseOrder()))
+                    .collect(Collectors.toList());
+
+            Map<String, Integer> sortedMap = new LinkedHashMap<>();
+            for (Map.Entry<String, Integer> entry : sortedList) {
+                sortedMap.put(entry.getKey(), entry.getValue());
+            }
+
+            return sortedMap;
+    }
+
 }

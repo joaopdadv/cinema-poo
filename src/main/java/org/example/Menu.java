@@ -1201,7 +1201,7 @@ public class Menu {
                     filmePorNome();
                     break;
                 case 2:
-                    ingressosPorFilme();
+                    filmesPorIngressos();
                     break;
                 case 0:
                     System.out.println("Voltando ao menu principal...");
@@ -1239,7 +1239,11 @@ public class Menu {
         scanner.nextLine();
     }
 
-    public void ingressosPorFilme(){}
+    public void filmesPorIngressos(){
+        Map<String, Integer> map = cinemaService.filmesPorIngressos();
+
+        printMapFilmesDecrescente(map);
+    }
 
     private boolean confirmarAcao(String acao) {
         System.out.println("Você tem certeza que quer " + acao + "?");
@@ -1266,6 +1270,12 @@ public class Menu {
     private static <K, V> void printMap(Map<K, V> map) {
         for (Map.Entry<K, V> entry : map.entrySet()) {
             System.out.println(entry.getKey() + " = " + entry.getValue());
+        }
+    }
+
+    private static <K, V> void printMapFilmesDecrescente(Map<K, V> map) {
+        for (Map.Entry<K, V> entry : map.entrySet()) {
+            System.out.println(entry.getKey() + " = " + entry.getValue() + " ingressos");
         }
     }
 }
