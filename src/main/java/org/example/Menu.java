@@ -49,6 +49,7 @@ public class Menu {
             System.out.println(" 5 - PESSOAS");
             System.out.println(" 6 - GENEROS");
             System.out.println(" 7 - INGRESSOS");
+            System.out.println(" 8 - CONSULTAS");
             System.out.println(" 0 - Sair");
 
             opcao = scanner.nextInt();
@@ -83,6 +84,9 @@ public class Menu {
                     break;
                 case 7:
                     mostrarMenuIngressos();
+                    break;
+                case 8:
+                    mostrarMenuConsultas();
                     break;
                 case 0:
                     if(confirmarAcao("sair")){
@@ -1076,6 +1080,7 @@ public class Menu {
             System.out.println("MENU INGRESSOS");
             System.out.println(" 1 - Criar");
             System.out.println(" 2 - Obter dados");
+            System.out.println(" 3 - Consultar Ingressos");
             System.out.println(" 0 - Voltar");
 
             opcao = scanner.nextInt();
@@ -1137,6 +1142,11 @@ public class Menu {
 
         Assento assento = assentoMap.get(idAssento);
 
+//        if(cinemaService.verificaAssentoVendido(assento, horario)){
+//            System.out.println("Esse assento já está vendido para este horario!");
+//            return;
+//        }
+
         System.out.println("Nome do comprador:");
         String nome = scanner.nextLine();
 
@@ -1162,7 +1172,42 @@ public class Menu {
 
         cinemaService.salvarIngresso(ingresso);
     }
-    public void listarIngressos(){}
+
+    public void listarIngressos(){
+        System.out.println(cinemaService.getIngressosFromFile());
+    }
+
+    // -------------------------------------------------------------------------------------------------- //
+    // --------------------------------------------- CONSULTAS ------------------------------------------ //
+    // -------------------------------------------------------------------------------------------------- //
+
+    public void mostrarMenuConsultas(){
+        int opcao = 0;
+        do {
+            System.out.println("---------------------------------------------");
+            System.out.println("MENU INGRESSOS");
+            System.out.println(" 1 - Criar");
+            System.out.println(" 2 - Obter dados");
+            System.out.println(" 3 - Consultar Ingressos");
+            System.out.println(" 0 - Voltar");
+
+            opcao = scanner.nextInt();
+            scanner.nextLine();
+
+            switch (opcao){
+                case 1:
+                    criarIngresso();
+                    break;
+                case 2:
+                    listarIngressos();
+                    break;
+                case 0:
+                    System.out.println("Voltando ao menu principal...");
+                    break;
+            }
+            System.out.println("---------------------------------------------");
+        }while (opcao != 0);
+    }
 
     private boolean confirmarAcao(String acao) {
         System.out.println("Você tem certeza que quer " + acao + "?");

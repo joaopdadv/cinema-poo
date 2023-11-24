@@ -3,6 +3,7 @@ package org.example.services;
 import org.example.entity.cinema.Cinema;
 import org.example.entity.genero.Genero;
 import org.example.entity.horario.Horario;
+import org.example.entity.ingresso.Ingresso;
 import org.example.entity.pessoas.Pessoa;
 import org.example.entity.pessoas.tipos.Ator;
 import org.example.entity.pessoas.tipos.Diretor;
@@ -415,15 +416,85 @@ public class CinemaService {
     }
 
     public Map<Integer, Assento> getAssentosMap(Horario horario) {
-        Set<Assento> assentos = horario.getSala().getAssentos();
+        String nomeSala = horario.getSala().getNome();
 
-        Map<Integer, Assento> assentosMap = new HashMap<>();
+        try {
+            Set<Sala> salas = lerArquivoCinemas().getSalas();
 
-        int index = 0;
-        for (Assento assento : assentos) {
-            assentosMap.put(index++, assento);
+            Sala newSala = salas.stream()
+                    .filter(sala -> sala.getNome().equals(nomeSala))
+                    .findFirst()
+                    .orElse(null);
+
+            if(newSala == null){
+                return new HashMap<>();
+            }
+
+            Set<Assento> assentos = newSala.getAssentos();
+
+            Map<Integer, Assento> assentosMap = new HashMap<>();
+
+            int index = 0;
+            for (Assento assento : assentos) {
+                if(!verificaAssentoVendido(assento, horario)){
+                    assentosMap.put(index++, assento);
+                }
+            }
+
+            return assentosMap;
+
+        } catch (CinemaNotFoundException c) {
+            c.printStackTrace();
+            return new HashMap<>();
+        }
+    }
+
+    public void salvarIngresso(Ingresso ingresso){
+        List<Ingresso> ingressos = getIngressosFromFile();
+
+        ingressos.add(ingresso);
+
+        salvarEmArquivo(ingressos, "ingressos.dat");
+    }
+
+    public List<Ingresso> getIngressosFromFile(){
+
+        List<Ingresso> list = new ArrayList<>();
+
+        File file = new File("ingressos.dat");
+
+        if(file.exists()){
+            try{
+                FileInputStream fileInputStream = new FileInputStream("ingressos.dat");
+                ObjectInputStream objectInputStream = new ObjectInputStream(fileInputStream);
+                Object o = objectInputStream.readObject();
+
+                list = (List<Ingresso>) o;
+
+                fileInputStream.close();
+                objectInputStream.close();
+            }catch (Exception e){
+                return list;
+            }
+        }
+        return list;
+    }
+
+    public boolean verificaAssentoVendido(Assento assento, Horario horario){
+        List<Ingresso> ingressos = getIngressosFromFile();
+
+        //tentei fazer isso com equals implementado nas classes mas de alguma forma não funcionou ??
+        for (Ingresso i : ingressos) {
+            if(i.getAssento().getFileira().equals(assento.getFileira()) && i.getAssento().getNumero().equals(assento.getNumero())){
+                if(i.getHorario().getHorario().equals(horario.getHorario()) && i.getHorario().getData().equals(horario.getData())){
+                    if(i.getHorario().getSala().getNome().equals(horario.getSala().getNome())){
+                        return true;
+                    }
+                }
+            }
         }
 
-        return assentosMap;
+
+        return false;
     }
 }
