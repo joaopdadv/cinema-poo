@@ -6,6 +6,7 @@ import org.example.entity.horario.Horario;
 import org.example.entity.pessoas.Pessoa;
 import org.example.entity.pessoas.tipos.Ator;
 import org.example.entity.pessoas.tipos.Diretor;
+import org.example.entity.poltrona.Assento;
 import org.example.entity.sala.Sala;
 import org.example.exceptions.CinemaNotFoundException;
 import org.example.exceptions.SalasNotFoundException;
@@ -185,8 +186,6 @@ public class CinemaService {
 
         pessoasMap.remove(id);
 
-        //TODO: percorrer filmes e remover também
-
         salvarEmArquivo(pessoasMap, "pessoas.dat");
     }
 
@@ -316,9 +315,8 @@ public class CinemaService {
         return set;
     }
 
-    public boolean verificaHorarios(){
-        //TODO: ver se tem horarios cadastrados
-        return true;
+    public boolean verificaHorarios(Filme filme){
+        return !filme.getHorarios().isEmpty();
     }
 
     public void salvarGenero(Genero genero){
@@ -330,7 +328,7 @@ public class CinemaService {
     }
 
     public void editarGenero(Integer id, Genero genero){
-        //TODO: atualizacao em cascata nos filmes
+
         Map<Integer, Genero> generosMap = getGenerosMapFromFile();
 
         generosMap.put(id, genero);
@@ -353,8 +351,19 @@ public class CinemaService {
         return generosMap;
     }
 
-    public void excluirGenero(Genero genero){
-        //TODO: remover do Set por nome e percorrer filmes e deletar também.
+    public void excluirGenero(Integer id){
+
+        Map<Integer, Genero> generoMap = getGenerosMapFromFile();
+
+        generoMap.remove(id);
+
+        salvarEmArquivo(new HashSet<>(generoMap.values()), "generos.dat");
+    }
+
+    public boolean verificaGenero(Integer id){
+        Map<Integer, Genero> generoMap = getGenerosMapFromFile();
+
+        return generoMap.containsKey(id);
     }
 
     public Map<Integer, Filme> getFilmesMap() {
@@ -403,5 +412,18 @@ public class CinemaService {
         }catch (CinemaNotFoundException e){
             e.printStackTrace();
         }
+    }
+
+    public Map<Integer, Assento> getAssentosMap(Horario horario) {
+        Set<Assento> assentos = horario.getSala().getAssentos();
+
+        Map<Integer, Assento> assentosMap = new HashMap<>();
+
+        int index = 0;
+        for (Assento assento : assentos) {
+            assentosMap.put(index++, assento);
+        }
+
+        return assentosMap;
     }
 }

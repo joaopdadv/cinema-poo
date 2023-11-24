@@ -112,14 +112,14 @@ public class Filme implements Serializable {
     @Override
     public boolean equals(Object o) {
         if (this == o) return true;
-        if (!(o instanceof Filme)) return false;
+        if (o == null || getClass() != o.getClass()) return false;
         Filme filme = (Filme) o;
-        return Objects.equals(getNome(), filme.getNome()) && Objects.equals(getGenero(), filme.getGenero()) && Objects.equals(getAno(), filme.getAno()) && Objects.equals(getDescricao(), filme.getDescricao()) && Objects.equals(getDuracao(), filme.getDuracao()) && Objects.equals(getAtores(), filme.getAtores()) && Objects.equals(getDiretores(), filme.getDiretores()) && Objects.equals(getHorarios(), filme.getHorarios());
+        return Objects.equals(nome, filme.nome) && Objects.equals(genero, filme.genero) && Objects.equals(ano, filme.ano) && Objects.equals(descricao, filme.descricao) && Objects.equals(duracao, filme.duracao) && Objects.equals(atores, filme.atores) && Objects.equals(diretores, filme.diretores) && Objects.equals(horarios, filme.horarios);
     }
 
     @Override
     public int hashCode() {
-        return Objects.hash(getNome(), getGenero(), getAno(), getDescricao(), getDuracao(), getAtores(), getDiretores(), getHorarios());
+        return Objects.hash(nome, genero, ano, descricao, duracao, atores, diretores, horarios);
     }
 
     @Override
