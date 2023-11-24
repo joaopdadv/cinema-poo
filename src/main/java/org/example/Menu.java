@@ -1215,14 +1215,28 @@ public class Menu {
         System.out.println("Palavra chave para pesquisa: ");
         String palavra = scanner.nextLine();
 
-        List<Filme> filmes = cinemaService.findFilmesPorPalavraChave(palavra);
+        Map<Integer, String> filmesMap = cinemaService.findFilmesPorPalavraChave(palavra);
 
-        if(filmes.isEmpty()){
+        if(filmesMap.isEmpty()){
             System.out.println("Nenhum filme encontrado com a palavra chave: " + palavra);
             return;
         }
 
-        System.out.println(filmes);
+        printMap(filmesMap);
+
+        System.out.println("Qual o identificador do filme para ser acessado?");
+        Integer id = scanner.nextInt();
+        scanner.nextLine();
+
+        if(!filmesMap.containsKey(id)){
+            System.out.println("Id inválido");
+            return;
+        }
+
+        System.out.println(cinemaService.getFilmeByName(filmesMap.get(id)));
+
+        System.out.println("Clique ENTER para continuar...");
+        scanner.nextLine();
     }
 
     public void ingressosPorFilme(){}

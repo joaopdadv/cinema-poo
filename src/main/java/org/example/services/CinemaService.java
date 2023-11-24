@@ -499,7 +499,19 @@ public class CinemaService {
         return false;
     }
 
-    public List<Filme> findFilmesPorPalavraChave(String palavra) {
+    public Filme getFilmeByName(String nome) {
+        Map<Integer, Filme> filmeMap = getFilmesMap();
+
+        for (Filme filme : filmeMap.values()) {
+            if (filme.getNome().equals(nome)) {
+                return filme;
+            }
+        }
+
+        return null;
+    }
+
+    public Map<Integer, String> findFilmesPorPalavraChave(String palavra) {
 
         try {
             List<Filme> filmes = lerArquivoCinemas().getFilmes();
@@ -508,11 +520,16 @@ public class CinemaService {
                     .filter(filme -> filme.getNome().toLowerCase().contains(palavra.toLowerCase()))
                     .collect(Collectors.toList());
 
-            return filmesFiltrados;
+            Map<Integer, String> filmesMap = new HashMap<>();
+            for (int i = 0; i < filmesFiltrados.size(); i++) {
+                filmesMap.put(i, filmesFiltrados.get(i).getNome());
+            }
+
+            return filmesMap;
 
         } catch (CinemaNotFoundException e) {
             e.printStackTrace();
-            return new ArrayList<>();
+            return new HashMap<>();
         }
     }
 
