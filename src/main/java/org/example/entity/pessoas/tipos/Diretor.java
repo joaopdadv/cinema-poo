@@ -55,10 +55,11 @@ public class Diretor implements Pessoa, Serializable {
 
     @Override
     public String toString() {
-        return "Diretor{" +
+        String conjugeNome = (conjuge != null) ? conjuge.getNome() : "N/A";
+        return "Ator{" +
                 "nome='" + nome + '\'' +
                 ", paisOrigem='" + paisOrigem + '\'' +
-                ", conjuge=" + conjuge +
+                ", conjuge=" + conjugeNome +
                 '}';
     }
 

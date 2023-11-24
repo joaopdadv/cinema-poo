@@ -895,6 +895,8 @@ public class Menu {
             System.out.println(" 2 - Excluir");
             System.out.println(" 3 - Editar");
             System.out.println(" 4 - Obter dados");
+            System.out.println(" 5 - Casar");
+            System.out.println(" 6 - Divorciar");
             System.out.println(" 0 - Voltar");
 
             opcao = scanner.nextInt();
@@ -913,6 +915,12 @@ public class Menu {
                 case 4:
                     listarPessoas();
                     break;
+                case 5:
+                    casarPessoas();
+                    break;
+                case 6:
+                    divorciarPessoas();
+                    break;
                 case 0:
                     System.out.println("Voltando ao menu principal...");
                     break;
@@ -920,6 +928,56 @@ public class Menu {
             System.out.println("---------------------------------------------");
         }while (opcao != 0);
     }
+
+    public void casarPessoas(){
+        Map<Integer, Pessoa> pessoasMap = cinemaService.getPessoasFromFile();
+        printMap(pessoasMap);
+
+        System.out.println("Identificdor da primeira pessoa:");
+        Integer id1 = scanner.nextInt();
+        scanner.nextLine();
+
+        System.out.println("Identificdor da segunda pessoa:");
+        Integer id2 = scanner.nextInt();
+        scanner.nextLine();
+
+
+        Pessoa pessoa1 = pessoasMap.get(id1);
+        Pessoa pessoa2 = pessoasMap.get(id2);
+
+        pessoa1.casar(pessoa2);
+        pessoa2.casar(pessoa1);
+
+        pessoasMap.put(id1, pessoa1);
+        pessoasMap.put(id2, pessoa2);
+
+        cinemaService.salvarEmArquivo(pessoasMap, "pessoas.dat");
+    }
+
+    public void divorciarPessoas(){
+        Map<Integer, Pessoa> pessoasMap = cinemaService.getPessoasFromFile();
+        printMap(pessoasMap);
+
+        System.out.println("Identificdor da pessoa:");
+        Integer id1 = scanner.nextInt();
+        scanner.nextLine();
+
+        System.out.println("Identificdor da segunda pessoa:");
+        Integer id2 = scanner.nextInt();
+        scanner.nextLine();
+
+        Pessoa pessoa1 = pessoasMap.get(id1);
+        Pessoa pessoa2 = pessoasMap.get(id2);
+
+        pessoa1.divorciar();
+        pessoa2.divorciar();
+
+        pessoasMap.put(id1, pessoa1);
+        pessoasMap.put(id2, pessoa2);
+
+        cinemaService.salvarEmArquivo(pessoasMap, "pessoas.dat");
+    }
+
 
     public void criarPessoa(){
         System.out.println("A pessoa é um Ator ou Diretor?");

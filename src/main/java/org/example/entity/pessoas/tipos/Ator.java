@@ -69,10 +69,11 @@ public class Ator implements Pessoa, Serializable {
 
     @Override
     public String toString() {
+        String conjugeNome = (conjuge != null) ? conjuge.getNome() : "N/A";
         return "Ator{" +
                 "nome='" + nome + '\'' +
                 ", paisOrigem='" + paisOrigem + '\'' +
-                ", conjuge=" + conjuge +
+                ", conjuge=" + conjugeNome +
                 '}';
     }
 }
