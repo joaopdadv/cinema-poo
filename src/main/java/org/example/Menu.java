@@ -454,6 +454,7 @@ public class Menu {
     }
 
     public void editarAssento(Sala sala){
+        System.out.println(sala.getAssentos());
         System.out.println("Qual a fileira do assento?");
         String fileira = scanner.nextLine();
 
@@ -504,14 +505,14 @@ public class Menu {
     }
 
     public void excluirHorario(Filme filme){
-        listarHorarios(filme);
+        Map<Integer, Horario> map = listarHorarios(filme);
         System.out.println("-------------------");
         System.out.println("Qual o identificador do horário para ser excluído?");
         int id = scanner.nextInt();
         scanner.nextLine();
 
         if(confirmarAcao("remover horário")){
-            cinemaService.excluirHorario(id, filme);
+            cinemaService.excluirHorario(id, filme, map);
             System.out.println("Horário excluído com sucesso!");
         }
     }
@@ -524,6 +525,10 @@ public class Menu {
         scanner.nextLine();
 
         Map<Integer, Horario> horarioMap = filme.getHorarios();
+        if(!horarioMap.containsKey(id)){
+            System.out.println("Id inválido");
+            return;
+        }
         Horario horario = horarioMap.get(id);
 
         int opcao = 0;
@@ -561,13 +566,16 @@ public class Menu {
             }
         }while(opcao != 0);
 
-        cinemaService.editarHorario(idFilme, id,horario, filme);
+        cinemaService.editarHorario(idFilme, id, horario, filme);
     }
 
-    public void listarHorarios(Filme filme){
-        for (Map.Entry<Integer, Horario> entry : cinemaService.getHorariosFromFilme(filme).entrySet()) {
+    public Map<Integer, Horario> listarHorarios(Filme filme){
+        Map<Integer, Horario> map = cinemaService.getHorariosFromFilme(filme);
+        for (Map.Entry<Integer, Horario> entry : map.entrySet()) {
             System.out.println(entry.getKey() + " = " + entry.getValue());
         }
+
+        return map;
     }
 
     // -------------------------------------------------------------------------------------------------- //
@@ -828,6 +836,7 @@ public class Menu {
                     } else {
                         System.out.println("Ator com o identificador fornecido não encontrado.");
                     }
+                    break;
                 case 8:
                     if (cinemaService.getMapDiretores().isEmpty()){
                         System.out.println("Nenhum diretor cadastrado.");
@@ -987,6 +996,10 @@ public class Menu {
         int opcao = scanner.nextInt();
         scanner.nextLine();
 
+        if(opcao != 1 && opcao != 2){
+            return;
+        }
+
         System.out.println("Nome:");
         String nome = scanner.nextLine();
 
@@ -996,10 +1009,8 @@ public class Menu {
         Pessoa pessoa;
         if(opcao == 1){
             pessoa = new Ator(nome, pais);
-        }else if(opcao == 2){
-            pessoa = new Diretor(nome, pais);
         }else{
-            return;
+            pessoa = new Diretor(nome, pais);
         }
 
         cinemaService.salvarPessoa(pessoa);
@@ -1115,7 +1126,7 @@ public class Menu {
         Integer id = scanner.nextInt();
         scanner.nextLine();
 
-        if(cinemaService.verificaGenero(id)){
+        if(!cinemaService.verificaGenero(id)){
             System.out.println("Gênero inválido");
             return;
         }

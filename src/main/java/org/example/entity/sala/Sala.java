@@ -58,9 +58,6 @@ public class Sala implements Serializable {
     }
     @Override
     public String toString() {
-        return "Sala{" +
-                "nome='" + nome + '\'' +
-                ", poltronas=" + assentos +
-                '}';
+        return "Sala " + nome + " - Assentos: " + assentos + "\n";
     }
 }

@@ -41,9 +41,6 @@ public class Assento implements Serializable {
 
     @Override
     public String toString() {
-        return "Assento{" +
-                "fileira='" + fileira + '\'' +
-                ", numero='" + numero + '\'' +
-                '}';
+        return fileira + numero;
     }
 }

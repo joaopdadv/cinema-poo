@@ -251,14 +251,15 @@ public class CinemaService {
         editarFilme(idFilme, filme);
     }
 
-    public void excluirHorario(Integer idHorario, Filme filme) {
+    public void excluirHorario(Integer idHorario, Filme filme, Map<Integer, Horario> map) {
         Map<Integer, Filme> filmeMap = getFilmesMap();
 
         for (Map.Entry<Integer, Filme> entry : filmeMap.entrySet()) {
             Integer filmeId = entry.getKey();
             Filme filmeNoMap = entry.getValue();
 
-            if (filmeNoMap.equals(filme)) {
+            //Usar o equals dos filmes aqui não está funcionando
+            if (filmeNoMap.getNome().equals(filme.getNome()) && filmeNoMap.getAno().equals(filme.getAno())) {
                 filme.getHorarios().remove(idHorario);
 
                 editarFilme(filmeId, filme);
